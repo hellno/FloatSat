@@ -4,13 +4,22 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../Template.cpp 
+../CommHandler.cpp \
+../Main.cpp \
+../TestClass.cpp \
+../uartExample.cpp 
 
 OBJS += \
-./Template.o 
+./CommHandler.o \
+./Main.o \
+./TestClass.o \
+./uartExample.o 
 
 CPP_DEPS += \
-./Template.d 
+./CommHandler.d \
+./Main.d \
+./TestClass.d \
+./uartExample.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
