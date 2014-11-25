@@ -15,17 +15,10 @@
 #include <string>
 
 #include "topics.h"
-
 #include <stdlib.h>
 #include <malloc.h>
 
-struct CommStruct{
-	char param[6];
-	char * msg;
-};
-
-#define BUFFER_SIZE 512
-
+#define BUFFER_SIZE 256
 
 class CommHandler : public Thread{
 private:
@@ -36,7 +29,7 @@ public:
 	CommHandler(const char* name, HAL_UART *uart, uint64_t periode);
 	void init();
 	void run();
-	CommStruct parseStringToPacket(char * str);
+	void parseStringToPacket(char * str, CommStruct* cs);
 	char * parsePacketToString(CommStruct cs);
 	char* substring(char* arr, int begin, int len);
 

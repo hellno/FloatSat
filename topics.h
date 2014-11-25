@@ -8,11 +8,19 @@
 #ifndef TOPICS_H_
 #define TOPICS_H_
 
-#include "rodos.h"
+//structs
+struct CommStruct{
+	char param[6];
+	char * msg;
+};
 
-//all topics are declared in this file
+struct SatState{
+	unsigned int angle;
+};
 
-Topic<CommStruct> tc(-1, "TC");
+//topics
+extern Topic<CommStruct> tc;
+extern Topic<SatState> st;
 
 //to access and process incoming commands
 //create a class and add..

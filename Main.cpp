@@ -7,10 +7,8 @@
  */
 
 #include "rodos.h"
+
 #include <stdio.h>
-#include "math.h"
-//#include "TestClass.h"
-//#include "uartExample.h"
 #include "CommHandler.h"
 
 static Application module01("FloatSat", 2001);

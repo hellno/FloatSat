@@ -5,21 +5,21 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../CommHandler.cpp \
+../IMU.cpp \
 ../Main.cpp \
-../TestClass.cpp \
-../uartExample.cpp 
+../TestClass.cpp 
 
 OBJS += \
 ./CommHandler.o \
+./IMU.o \
 ./Main.o \
-./TestClass.o \
-./uartExample.o 
+./TestClass.o 
 
 CPP_DEPS += \
 ./CommHandler.d \
+./IMU.d \
 ./Main.d \
-./TestClass.d \
-./uartExample.d 
+./TestClass.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

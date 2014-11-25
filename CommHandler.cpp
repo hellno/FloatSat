@@ -6,7 +6,8 @@
  */
 #include "CommHandler.h"
 
-CommHandler::
+Topic<CommStruct> tc(-1, "TC");
+
 CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : Thread(name){
 			this->periode = periode;
 			this->uart = uart;
@@ -17,40 +18,39 @@ CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : T
 		}
 
 		void CommHandler::run(){
-			char buf[BUFFER_SIZE];
+			char buf[BUFFER_SIZE + 1];
+			buf[BUFFER_SIZE] = '\0';
+
 			TIME_LOOP(0, periode){
 
 				if(uart->isDataReady()){
-					xprintf("DATA IS READY, BABY");
-					uart->read(buf, 512);
-					CommStruct cs = parseStringToPacket(buf);
+					xprintf("DATA IS READY, BABY\n");
+					uart->read(buf, BUFFER_SIZE);
 
-					tc.publish(cs);
+					CommStruct cs;
 
-					xprintf(parsePacketToString(cs));
+					parseStringToPacket(buf, &cs);
+
+					//unsigned int retVal = tc.publish(cs);
+					//xprintf("%d retVal from publishing to topic", retVal);
+					//xprintf(parsePacketToString(cs));
+					xprintf("end of data read\n");
 				}
 			}
-		}
+	}
 
-	CommStruct CommHandler::parseStringToPacket(char * str){
-		CommStruct cs; // = new CommStruct();
+	void CommHandler::parseStringToPacket(char * str, CommStruct* cs){
+		xprintf("string in fct(): %s\n", str);
 
 		int size = strlen(str);
-		const char * newline_char = "\r\n";
-		const char * last_char = &str[size - 1];
+
+		xprintf("char length: %d", size);
 
 		if(size < 6)
-			return cs;
+			return;
 
-		if(strcmp(last_char, newline_char) != 0){
-			xprintf("parseStrToPkt: last char != newline, was %c", last_char);
-			return cs;
-		}
-
-		printf(cs.param, "%.5s", str);
-		printf(cs.msg, substring(str, 6, size));
-
-		return cs;
+		sprintf(cs->param, "%.5s", str);
+		sprintf(cs->msg, substring(str, 6, size));
 
 	}
 
@@ -70,5 +70,6 @@ CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : T
 	    res[len] = 0;
 	    return res;
 	}
+
 
 
