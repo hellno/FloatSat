@@ -6,6 +6,8 @@
  */
 #include "CommHandler.h"
 
+#define BUFFER_SIZE 128
+
 Topic<CommStruct> tc(-1, "TC");
 
 CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : Thread(name){
@@ -18,57 +20,32 @@ CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : T
 		}
 
 		void CommHandler::run(){
-			char buf[BUFFER_SIZE + 1];
-			buf[BUFFER_SIZE] = '\0';
 
 			TIME_LOOP(0, periode){
 
 				if(uart->isDataReady()){
-					xprintf("DATA IS READY, BABY\n");
-					uart->read(buf, BUFFER_SIZE);
-
+					char buf[BUFFER_SIZE];
+					int size = uart->read(buf, BUFFER_SIZE);
 					CommStruct cs;
-
-					parseStringToPacket(buf, &cs);
-
-					//unsigned int retVal = tc.publish(cs);
-					//xprintf("%d retVal from publishing to topic", retVal);
-					//xprintf(parsePacketToString(cs));
-					xprintf("end of data read\n");
+					parseStringToPacket(buf, size, &cs);
+					unsigned int retVal = tc.publish(cs);
+					char out[BUFFER_SIZE];
+					parsePacketToString(out, &cs);
+					xprintf("%s\n",out);
 				}
 			}
 	}
 
-	void CommHandler::parseStringToPacket(char * str, CommStruct* cs){
-		xprintf("string in fct(): %s\n", str);
-
-		int size = strlen(str);
-
-		xprintf("char length: %d", size);
-
-		if(size < 6)
+	void CommHandler::parseStringToPacket(char * str, int size, CommStruct* cs){
+		if(size < 7)
 			return;
 
-		sprintf(cs->param, "%.5s", str);
-		sprintf(cs->msg, substring(str, 6, size));
-
+		sprintf(cs->param, "%.6s", str);
+		sprintf(cs->msg, "%.*s", size - 7, str + 6);
 	}
 
-	char * CommHandler::parsePacketToString(CommStruct cs){
-		char * out;
-		sprintf(out, "PARAM: %s, MSG: %s", cs.param, cs.msg);
-		return out;
-	}
-
-	char* CommHandler::substring(char* arr, int begin, int len){
-	    //WATCH OUT, MAYBE UNSAFE TO CREATE RES WITHOUT ANY LIMIT
-		char* res;
-		//char* tst = (char *) malloc (len);
-	    for (int i = 0; i < len; i++){
-	        res[i] = *(arr + begin + i);
-	    }
-	    res[len] = 0;
-	    return res;
+	void CommHandler::parsePacketToString(char * out, CommStruct *cs){
+		sprintf(out, "PARAM: '%s', MSG: '%s'", cs->param, cs->msg);
 	}
 
 

@@ -18,8 +18,6 @@
 #include <stdlib.h>
 #include <malloc.h>
 
-#define BUFFER_SIZE 256
-
 class CommHandler : public Thread{
 private:
 	HAL_UART *uart;
@@ -29,10 +27,8 @@ public:
 	CommHandler(const char* name, HAL_UART *uart, uint64_t periode);
 	void init();
 	void run();
-	void parseStringToPacket(char * str, CommStruct* cs);
-	char * parsePacketToString(CommStruct cs);
-	char* substring(char* arr, int begin, int len);
-
+	void parseStringToPacket(char * str, int size, CommStruct* cs);
+	void parsePacketToString(char * out, CommStruct *cs);
 };
 
 #endif /* COMMHANDLER_H_ */
