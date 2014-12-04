@@ -71,8 +71,13 @@ void LightSensor::init(){
 		xprintf("i2c ERROR@init\n");
 
 	uint8_t pwr_cmd[2] = { PWR_ADDRESS, PWR_ON_CMD };
-	int32_t retVal = i2c->write(SLAVE_ADDRESS, pwr_cmd, 2);
+	//int32_t retVal = i2c->write(SLAVE_ADDRESS, pwr_cmd, 2);
+	uint8_t buf[1] = { 0 };
+
+	int32_t retVal = i2c->writeRead(SLAVE_ADDRESS, pwr_cmd, 2, buf, 1);
+
 	xprintf("i2c light init \npowerUp retVal: %d \n",retVal);
+	xprintf("answer: %d(=%d), right answer: %d(t/f)\n", buf[0], PWR_ON_CMD, buf[0] == PWR_ON_CMD);
 
 	//setting custom integration time -> 101ms
 	uint8_t integrate_cmd[2] = { INTEGRATE_ADDRESS , INTEGRATE_CMD_13MS };
@@ -105,18 +110,20 @@ void LightSensor::run(){
 			channel0_combined = (channel0[0] << 8) + channel0[1];
 			channel1_combined = (channel1[0] << 8) + channel1[1];
 
+//			xprintf("ch0: %d, %d\n",  channel0[0], channel0[1]);
+//			xprintf("ch1: %d, %d\n",  channel1[0], channel1[1]);
+//
 //			xprintf("combined val of ch0: %d\n",  channel0_combined);
 //			xprintf("combined val of ch1: %d\n", channel1_combined);
 
 			lux =  calculateLux(channel0_combined, channel1_combined);
 			lightTopic.publish(lux);
 
-//			xprintf("lux: %d\n", lux);
+			xprintf("lux: %d\n", lux);
 
 		}else{
 			xprintf("err@reading i2c sun registers\n");
 			xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
-			init();
 		}
 
 	}

@@ -4,7 +4,6 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../CallHome.cpp \
 ../CommHandler.cpp \
 ../IMU.cpp \
 ../LightSensor.cpp \
@@ -12,7 +11,6 @@ CPP_SRCS += \
 ../TestClass.cpp 
 
 OBJS += \
-./CallHome.o \
 ./CommHandler.o \
 ./IMU.o \
 ./LightSensor.o \
@@ -20,7 +18,6 @@ OBJS += \
 ./TestClass.o 
 
 CPP_DEPS += \
-./CallHome.d \
 ./CommHandler.d \
 ./IMU.d \
 ./LightSensor.d \

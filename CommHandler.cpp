@@ -9,6 +9,7 @@
 #define BUFFER_SIZE 128
 
 Topic<CommStruct> tc(-1, "TC");
+//CommBuffer<CommStruct> commBuffer;
 
 CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : Thread(name){
 			this->periode = periode;
