@@ -26,4 +26,5 @@ HAL_I2C imu_i2c(I2C_IDX2);
 //CommHandler ch("CommHandler", &uart_usb, STD_PERIOD);
 
 //LightSensor ls("LightSensor", &light_i2c, STD_PERIOD);
-IMU imu("IMU", &imu_i2c, 1 * SECONDS);
+IMU imu("IMU", &imu_i2c);
+

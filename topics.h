@@ -20,10 +20,27 @@ struct SatState{
 	unsigned int angle;
 };
 
+struct RawVector3D{
+	uint16_t x;
+	uint16_t y;
+	uint16_t z;
+};
+
+struct Vector3D{
+	float x;
+	float y;
+	float z;
+};
+
+struct IMUData{
+	Vector3D gyro;
+};
+
 //topics
 extern Topic<CommStruct> tc;
 extern Topic<SatState> st;
 extern Topic<uint32_t> lightTopic;
+extern Topic<Vector3D> gyroTopic;
 
 //to access and process incoming commands
 //create a class and add..
