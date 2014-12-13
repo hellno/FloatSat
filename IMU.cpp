@@ -36,7 +36,7 @@ Topic<SatState> st(-1, "SatState");
 #define ACC_SENSITIVITY 0.061f
 #define MAG_SENSITIVITY 0.08f
 
-#define GYRO_RAWDATA_FACTOR (GYRO_SENSITIVITY / RAW_DATA_BUFFER_SIZE) * THREAD_PERIOD
+#define GYRO_RAWDATA_FACTOR (GYRO_SENSITIVITY / RAW_DATA_BUFFER_SIZE)
 
 #define IMU_PORT GPIO_055 //=PD07
 #define CS_GYRO_PORT GPIO_018 //=PB02
@@ -77,6 +77,8 @@ uint32_t retVal = 0;
 const uint8_t who_am_i[] = { WHO_AM_I_ADDRESS };
 const uint8_t readDataCmd[] = { GYRO_X_L | 0x80 };
 const uint8_t magDataCmd[] = { MAG_X_L | 0x80 };
+
+RawVector3D gyroOffset;
 
 IMU::IMU(const char* name, HAL_I2C *i2c){
 	this->i2c = i2c;
@@ -153,6 +155,30 @@ void IMU::initGyro(){
 		return;
 	}
 	xprintf("GYRO_FACTOR %f\n", GYRO_RAWDATA_FACTOR);
+
+	xprintf("starting bias calc..");
+
+
+	uint8_t gyroBuf[6];
+	RawVector3D rawVectors[500];
+	long x_sum = 0, y_sum = 0, z_sum = 0;
+
+	for(int i = 0; i < 500; i++){
+		readGyroData(gyroBuf);
+
+		x_sum += (gyroBuf[0] << 8 + gyroBuf[1]);
+		y_sum += (gyroBuf[2] << 8 + gyroBuf[3]);
+		z_sum += (gyroBuf[4] << 8 + gyroBuf[5]);
+
+		//xprintf("bias: x:%ld, y:%ld, z:%ld\n",x_sum, y_sum, z_sum);
+
+		//suspendCallerUntil(NOW() + 1 * MILLISECONDS);
+	}
+	gyroOffset.x = x_sum / 500;
+	gyroOffset.y = y_sum / 500;
+	gyroOffset.z = z_sum / 500;
+
+	xprintf("calcOffset: x:%d, y:%d, z:%d", gyroOffset.x, gyroOffset.y, gyroOffset.z);
 }
 
 void IMU::initAcc(){
@@ -171,11 +197,11 @@ void IMU::readAccData(uint8_t *buf){
 	i2c->writeRead(ACC_SLAVE_ADDRESS, readDataCmd, 1, buf, 6);
 }
 
-void mergeRawData(uint8_t *from, RawVector3D *to){
+void mergeRawData(uint8_t *from, RawVector3D to){
 	//must be in format XL,XH - YL,YH - ZL,ZH
-	to->x = (from[0] << 8 + from[1]);
-	to->y = (from[2] << 8 + from[3]);
-	to->z = (from[4] << 8 + from[5]);
+	to.x = (from[0] << 8 + from[1]);
+	to.y = (from[2] << 8 + from[3]);
+	to.z = (from[4] << 8 + from[5]);
 }
 
 void IMU::run(){
@@ -196,14 +222,13 @@ void IMU::run(){
 	TIME_LOOP(0, 20 * MILLISECONDS){
 		readGyroData(gyroBuf);
 
-		gyroRawData[dataCounter].x = (gyroBuf[0] << 8 + gyroBuf[1]);
-		gyroRawData[dataCounter].y = (gyroBuf[2] << 8 + gyroBuf[3]);
-		gyroRawData[dataCounter].z = (gyroBuf[4] << 8 + gyroBuf[5]);
+		gyroRawData[dataCounter].x = (gyroBuf[0] << 8 + gyroBuf[1]) - gyroOffset.x;
+		gyroRawData[dataCounter].y = (gyroBuf[2] << 8 + gyroBuf[3]) - gyroOffset.y;
+		gyroRawData[dataCounter].z = (gyroBuf[4] << 8 + gyroBuf[5]) - gyroOffset.z;
 
-		xprintf("[%.2f|%.2f|%.2f]\n", gyroData.x, gyroData.y, gyroData.z);
 
 		if(dataCounter % RAW_DATA_BUFFER_SIZE == 0){
-			//integrate
+
 			while(counter < RAW_DATA_BUFFER_SIZE){
 				tempX += gyroRawData[counter].x;
 				tempY += gyroRawData[counter].y;

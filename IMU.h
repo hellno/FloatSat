@@ -28,7 +28,7 @@ private:
 	void writeDataToVector(float *data, Vector3D *vector);
 	bool writeReadCheck(uint8_t slave_address, uint8_t address, uint8_t cmd);
 	bool readCheck(uint8_t slave_address, uint8_t address, uint8_t targetValue);
-	void mergeRawData(uint8_t *from, RawVector3D *to);
+	void mergeRawData(uint8_t *from, RawVector3D to);
 public:
 	IMU(const char* name, HAL_I2C *i2c);
 	void init();
