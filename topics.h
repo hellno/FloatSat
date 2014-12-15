@@ -16,9 +16,6 @@ struct CommStruct{
 	char * msg;
 };
 
-struct SatState{
-	unsigned int angle;
-};
 
 struct RawVector3D{
 	uint16_t x;
@@ -32,15 +29,13 @@ struct Vector3D{
 	float z;
 };
 
-struct IMUData{
-	Vector3D gyro;
-};
-
 //topics
 extern Topic<CommStruct> tc;
-extern Topic<SatState> st;
 extern Topic<uint32_t> lightTopic;
-extern Topic<Vector3D> gyroTopic;
+extern Topic<RawVector3D> gyroTopic;
+extern Topic<RawVector3D> accTopic;
+extern Topic<RawVector3D> magTopic;
+extern Topic<uint8_t> tempTopic;
 
 //to access and process incoming commands
 //create a class and add..

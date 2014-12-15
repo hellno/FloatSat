@@ -25,6 +25,7 @@ private:
 	void initAcc();
 	void readGyroData(uint8_t *buf);
 	void readAccData(uint8_t *buf);
+	void readMagData(uint8_t* buf);
 	void writeDataToVector(float *data, Vector3D *vector);
 	bool writeReadCheck(uint8_t slave_address, uint8_t address, uint8_t cmd);
 	bool readCheck(uint8_t slave_address, uint8_t address, uint8_t targetValue);
