@@ -7,13 +7,14 @@
 
 #include "IMU.h"
 
+#include <cstdlib>
+
+#define DEBUG true
+
 Topic<RawVector3D> accTopic(-1, "accelerometer");
 Topic<RawVector3D> magTopic(-1, "magnetometer");
 Topic<RawVector3D> gyroTopic(-1, "gyro");
 Topic<uint8_t> tempTopic(-1, "temperature");
-
-#define THREAD_PERIOD 0.02f //in s
-
 #define RAW_DATA_BUFFER_SIZE 5
 
 #define LSM303DLH_ACC_ADDR  0x18
@@ -108,20 +109,6 @@ void IMU::init(){
 	else
 		xprintf("i2c IMU ERROR@init\n");
 
-
-	uint8_t buf[1] = { 0 };
-
-	retVal = i2c->writeRead(GYRO_SLAVE_ADDRESS, who_am_i, 1, buf, 1);
-
-	if(retVal > 0 && buf[0] == GYRO_DEVICE_ID)
-		xprintf("gyro successfully initiated\n");
-
-	buf[0] = 0;
-	retVal = i2c->writeRead(ACC_SLAVE_ADDRESS, who_am_i, 1, buf, 1);
-
-	if(retVal > 0 && buf[0] == ACC_DEVICE_ID)
-		xprintf("acc successfully initiated\n");
-
 	initGyro();
 	initAcc();
 }
@@ -158,6 +145,13 @@ void IMU::initGyro(){
 		xprintf("gyro status wrong!, retVal: %d\n", retVal);
 		return;
 	}
+
+	if(!writeReadCheck(GYRO_SLAVE_ADDRESS, WHO_AM_I_ADDRESS, GYRO_DEVICE_ID)){
+		xprintf("gyro has wrong id\n");
+		return;
+	}
+
+	xprintf("gyro successfully initiated\n");
 	xprintf("GYRO_FACTOR %f\n", GYRO_RAWDATA_FACTOR);
 
 	xprintf("GYRO OFFSET: [%d,%d,%d]\n", gyroOffset.x, gyroOffset.y, gyroOffset.z);
@@ -175,6 +169,14 @@ void IMU::initAcc(){
 		xprintf("error @acc init\n");
 		return;
 	}
+
+	if(!writeReadCheck(ACC_SLAVE_ADDRESS, WHO_AM_I_ADDRESS, ACC_DEVICE_ID)){
+		xprintf("acc has wrong id\n");
+		return;
+	}
+
+	xprintf("acc successfully initiated\n");
+
 }
 
 void IMU::readMagData(uint8_t* buf){
@@ -220,25 +222,28 @@ void IMU::run(){
 		gyroRawData.y = (uint16_t)(gyroBuf[2] << 8 + gyroBuf[3]);
 		gyroRawData.z = (uint16_t)(gyroBuf[4] << 8 + gyroBuf[5]);
 
-		xprintf("gyro [%d|%d|%d]\n", gyroRawData.x, gyroRawData.y, gyroRawData.z);
+		if(DEBUG) xprintf("GYRDAT%d,%d,%d,\n", gyroRawData.x, gyroRawData.y, gyroRawData.z);
 
 		i2c->writeRead(MAG_SLAVE_ADDRESS, magDataCmd, 1, magBuf, 6);
 		magRawData.x = (uint16_t)(magBuf[0] << 8 + magBuf[1]);
 		magRawData.y = (uint16_t)(magBuf[2] << 8 + magBuf[3]);
 		magRawData.z = (uint16_t)(magBuf[4] << 8 + magBuf[5]);
 
-		xprintf("mag  [%d|%d|%d]\n", magRawData.x, magRawData.y, magRawData.z);
+		if(DEBUG) xprintf("mag  [%d|%d|%d]\n", magRawData.x, magRawData.y, magRawData.z);
 
 		i2c->writeRead(ACC_SLAVE_ADDRESS, readDataCmd, 1, accBuf, 6);
 		accRawData.x = (uint16_t)(accBuf[0] << 8 + accBuf[1]);
 		accRawData.y = (uint16_t)(accBuf[2] << 8 + accBuf[3]);
 		accRawData.z = (uint16_t)(accBuf[4] << 8 + accBuf[5]);
 
-		xprintf("acc  [%d|%d|%d]\n", accRawData.x, accRawData.y, accRawData.z);
+		if(DEBUG) xprintf("ACCDAT%d,%d,%d\n", accRawData.x, accRawData.y, accRawData.z);
 
 		i2c->writeRead(ACC_SLAVE_ADDRESS, tmpDataCmd, 1, tempBuf, 2);
 		temperature = (tempBuf[0] << 4 + tempBuf[1]) / 8;
-		xprintf("tmp  [%d]\n", temperature);
+
+		if(DEBUG) xprintf("tmp  [%d]\n", temperature);
+
+		if(!DEBUG) xprintf("CURBAT%d\n", rand() % 5 + 1);
 
 		accTopic.publish(accRawData);
 		gyroTopic.publish(gyroRawData);

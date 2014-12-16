@@ -8,6 +8,8 @@ CPP_SRCS += \
 ../IMU.cpp \
 ../LightSensor.cpp \
 ../Main.cpp \
+../Motor.cpp \
+../MotorThread.cpp \
 ../TestClass.cpp 
 
 OBJS += \
@@ -15,6 +17,8 @@ OBJS += \
 ./IMU.o \
 ./LightSensor.o \
 ./Main.o \
+./Motor.o \
+./MotorThread.o \
 ./TestClass.o 
 
 CPP_DEPS += \
@@ -22,6 +26,8 @@ CPP_DEPS += \
 ./IMU.d \
 ./LightSensor.d \
 ./Main.d \
+./Motor.d \
+./MotorThread.d \
 ./TestClass.d 
 
 
