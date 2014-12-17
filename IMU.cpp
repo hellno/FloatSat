@@ -212,7 +212,7 @@ void IMU::run(){
 	RawVector3D gyroRawData, magRawData, accRawData;
 	Vector3D gyroData;
 
-	TIME_LOOP(0, 250 * MILLISECONDS){
+	TIME_LOOP(0, 500 * MILLISECONDS){
 
 		//readGyroData(gyroBuf);
 		//mergeRawData(gyroBuf, gyroRawData);
@@ -229,21 +229,21 @@ void IMU::run(){
 		magRawData.y = (uint16_t)(magBuf[2] << 8 + magBuf[3]);
 		magRawData.z = (uint16_t)(magBuf[4] << 8 + magBuf[5]);
 
-		if(DEBUG) xprintf("mag  [%d|%d|%d]\n", magRawData.x, magRawData.y, magRawData.z);
+		if(!DEBUG) xprintf("mag  [%d|%d|%d]\n", magRawData.x, magRawData.y, magRawData.z);
 
 		i2c->writeRead(ACC_SLAVE_ADDRESS, readDataCmd, 1, accBuf, 6);
 		accRawData.x = (uint16_t)(accBuf[0] << 8 + accBuf[1]);
 		accRawData.y = (uint16_t)(accBuf[2] << 8 + accBuf[3]);
 		accRawData.z = (uint16_t)(accBuf[4] << 8 + accBuf[5]);
 
-		if(DEBUG) xprintf("ACCDAT%d,%d,%d\n", accRawData.x, accRawData.y, accRawData.z);
+		if(!DEBUG) xprintf("ACCDAT%d,%d,%d\n", accRawData.x, accRawData.y, accRawData.z);
 
 		i2c->writeRead(ACC_SLAVE_ADDRESS, tmpDataCmd, 1, tempBuf, 2);
 		temperature = (tempBuf[0] << 4 + tempBuf[1]) / 8;
 
-		if(DEBUG) xprintf("tmp  [%d]\n", temperature);
+		if(!DEBUG) xprintf("tmp  [%d]\n", temperature);
 
-		if(!DEBUG) xprintf("CURBAT%d\n", rand() % 5 + 1);
+		if(DEBUG) xprintf("CURBAT%d\n", rand() % 5 + 1);
 
 		accTopic.publish(accRawData);
 		gyroTopic.publish(gyroRawData);

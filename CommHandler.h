@@ -9,14 +9,13 @@
 #define COMMHANDLER_H_
 
 #include "rodos.h"
+#include "topics.h"
 #include <stdio.h>
 #include "hal.h"
 #include "hal/hal_uart.h"
 #include <string>
 
-#include "topics.h"
 #include <stdlib.h>
-#include <malloc.h>
 
 class CommHandler : public Thread{
 private:
@@ -29,6 +28,7 @@ public:
 	void run();
 	void parseStringToPacket(char * str, int size, CommStruct* cs);
 	void parsePacketToString(char * out, CommStruct *cs);
+	void sendPacket(SkyNetTMType paramType, char* msg);
 };
 
 #endif /* COMMHANDLER_H_ */

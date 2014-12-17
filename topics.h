@@ -29,13 +29,40 @@ struct Vector3D{
 	float z;
 };
 
+enum SkyNetModes{
+	STDNBY,
+	ROTMOD,
+	COMPAS,
+	SUNFIN,
+	MISION,
+};
+
+enum SkyNetTMType{
+	GYRDAT,
+	YAWANG,
+	ACCDAT,
+	MAGDAT,
+	LGHTSN,
+	TEMPLS,
+	CURBAT,
+	CURMOT,
+	VOLBAT,
+	VOLMOT,
+	PWMSIG,
+	ROTVEL,
+};
+
 //topics
+//TM
 extern Topic<CommStruct> tc;
 extern Topic<uint32_t> lightTopic;
 extern Topic<RawVector3D> gyroTopic;
 extern Topic<RawVector3D> accTopic;
 extern Topic<RawVector3D> magTopic;
 extern Topic<uint8_t> tempTopic;
+
+//TC
+extern Topic<uint8_t> motorSpeedTopic;
 
 //to access and process incoming commands
 //create a class and add..

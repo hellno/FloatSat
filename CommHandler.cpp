@@ -6,10 +6,10 @@
  */
 #include "CommHandler.h"
 
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 256
 
 Topic<CommStruct> tc(-1, "TC");
-//CommBuffer<CommStruct> commBuffer;
+char* sendString;
 
 CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : Thread(name){
 			this->periode = periode;
@@ -21,18 +21,24 @@ CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : T
 		}
 
 		void CommHandler::run(){
+			char buf[BUFFER_SIZE];
+			char out[BUFFER_SIZE];
+			int size = 0;
+			CommStruct cs;
 
 			TIME_LOOP(0, periode){
 
 				if(uart->isDataReady()){
-					char buf[BUFFER_SIZE];
-					int size = uart->read(buf, BUFFER_SIZE);
-					CommStruct cs;
+
+					size = uart->read(buf, BUFFER_SIZE);
+
 					parseStringToPacket(buf, size, &cs);
-					unsigned int retVal = tc.publish(cs);
-					char out[BUFFER_SIZE];
-					parsePacketToString(out, &cs);
-					xprintf("%s\n",out);
+
+					tc.publish(cs);
+
+//					ECHO
+//					parsePacketToString(out, &cs);
+//					xprintf("%s\n",out);
 				}
 			}
 	}
@@ -41,12 +47,25 @@ CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : T
 		if(size < 7)
 			return;
 
+		xprintf("length: %d\n", size);
+
 		sprintf(cs->param, "%.6s", str);
-		sprintf(cs->msg, "%.*s", size - 7, str + 6);
+		strncpy(cs->msg, str + 6, size - 6);
+		//sprintf(cs->msg, "%.*s", str - 7, str + 6);
 	}
 
 	void CommHandler::parsePacketToString(char * out, CommStruct *cs){
 		sprintf(out, "PARAM: '%s', MSG: '%s'", cs->param, cs->msg);
+	}
+
+	void CommHandler::sendPacket(SkyNetTMType paramType, char* msg){
+		switch(paramType){
+		case 1:
+			break;
+		default:
+			xprintf("wrong TM type\n");
+			break;
+		}
 	}
 
 

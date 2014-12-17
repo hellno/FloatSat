@@ -18,19 +18,19 @@
 
 #define GPIO_INA GPIO_036 //=PC04
 #define GPIO_INB GPIO_017 //=PB01
-#define GPIO_PWM GPIO_060 //=PB12
+#define GPIO_PWM GPIO_060 //=PD12
+
 #define GPIO_HBRIDGE GPIO_066 //=PE02
 
 class Motor {
 private:
-	void PWMinit(uint32_t period);
+	void dbgStatus();
 public:
 	void init();
 	void startMotor();
 	void stopMotor();
 	void initTimer();
 	void setSpeed(uint8_t percentage);
-	uint32_t calcPulsLength(uint8_t percentage, uint32_t period);
 };
 
 #endif /* MOTOR_H_ */

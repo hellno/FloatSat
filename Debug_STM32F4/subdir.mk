@@ -10,6 +10,7 @@ CPP_SRCS += \
 ../Main.cpp \
 ../Motor.cpp \
 ../MotorThread.cpp \
+../TC.cpp \
 ../TestClass.cpp 
 
 OBJS += \
@@ -19,6 +20,7 @@ OBJS += \
 ./Main.o \
 ./Motor.o \
 ./MotorThread.o \
+./TC.o \
 ./TestClass.o 
 
 CPP_DEPS += \
@@ -28,6 +30,7 @@ CPP_DEPS += \
 ./Main.d \
 ./Motor.d \
 ./MotorThread.d \
+./TC.d \
 ./TestClass.d 
 
 
