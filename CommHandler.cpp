@@ -9,6 +9,7 @@
 #define BUFFER_SIZE 256
 
 Topic<CommStruct> tc(-1, "TC");
+
 char* sendString;
 
 CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : Thread(name){
@@ -46,8 +47,6 @@ CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : T
 	void CommHandler::parseStringToPacket(char * str, int size, CommStruct* cs){
 		if(size < 7)
 			return;
-
-		xprintf("length: %d\n", size);
 
 		sprintf(cs->param, "%.6s", str);
 		strncpy(cs->msg, str + 6, size - 6);

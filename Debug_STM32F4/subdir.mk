@@ -4,34 +4,43 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../Acc.cpp \
 ../CommHandler.cpp \
+../Gyro.cpp \
 ../IMU.cpp \
 ../LightSensor.cpp \
 ../Main.cpp \
 ../Motor.cpp \
 ../MotorThread.cpp \
 ../TC.cpp \
-../TestClass.cpp 
+../TestClass.cpp \
+../UserButton.cpp 
 
 OBJS += \
+./Acc.o \
 ./CommHandler.o \
+./Gyro.o \
 ./IMU.o \
 ./LightSensor.o \
 ./Main.o \
 ./Motor.o \
 ./MotorThread.o \
 ./TC.o \
-./TestClass.o 
+./TestClass.o \
+./UserButton.o 
 
 CPP_DEPS += \
+./Acc.d \
 ./CommHandler.d \
+./Gyro.d \
 ./IMU.d \
 ./LightSensor.d \
 ./Main.d \
 ./Motor.d \
 ./MotorThread.d \
 ./TC.d \
-./TestClass.d 
+./TestClass.d \
+./UserButton.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

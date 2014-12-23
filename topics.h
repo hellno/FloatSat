@@ -9,6 +9,7 @@
 #define TOPICS_H_
 
 #define PARAM_LENGTH 6
+#define BIAS_BUFFER_SIZE 100
 
 //structs
 struct CommStruct{
@@ -18,9 +19,9 @@ struct CommStruct{
 
 
 struct RawVector3D{
-	uint16_t x;
-	uint16_t y;
-	uint16_t z;
+	int16_t x;
+	int16_t y;
+	int16_t z;
 };
 
 struct Vector3D{
@@ -53,6 +54,10 @@ enum SkyNetTMType{
 };
 
 //topics
+enum SkyNetTopicID{
+	TelecommandoTopicID = 23456,
+	UserButtonTopicID = 34567,
+};
 //TM
 extern Topic<CommStruct> tc;
 extern Topic<uint32_t> lightTopic;
@@ -63,6 +68,9 @@ extern Topic<uint8_t> tempTopic;
 
 //TC
 extern Topic<uint8_t> motorSpeedTopic;
+
+//Hardware
+extern Topic<bool> buttonTopic;
 
 //to access and process incoming commands
 //create a class and add..

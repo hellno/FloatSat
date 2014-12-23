@@ -16,6 +16,8 @@ HAL_GPIO enableHBRIDGE(GPIO_HBRIDGE);
 
 HAL_PWM pwm(PWM_IDX12); // PWM_IDX12: PB06 -> PD12
 
+bool isRunning = false;
+
 void Motor::init(){
 	inAGPIO.init(true,1,1);
 	inBGPIO.init(true,1,0);
@@ -29,18 +31,26 @@ void Motor::init(){
 
 void Motor::startMotor(){
 	enableHBRIDGE.setPins(1);
+	isRunning = true;
 	//xprintf("start motor\n");
 	//dbgStatus();
 }
 
 void Motor::stopMotor(){
 	enableHBRIDGE.setPins(0);
+	isRunning = false;
 	xprintf("stop motor\n");
 }
 
 void Motor::setSpeed(uint8_t percentage){
 	if(percentage < 0 || percentage > 100)
 		return;
+
+	if(percentage == 0)
+		this->stopMotor();
+
+	if(!isRunning)
+		this->startMotor();
 
 	pwm.write(percentage);
 }

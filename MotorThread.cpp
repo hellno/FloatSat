@@ -31,6 +31,8 @@ void MotorThread::run(){
 	while(1){
 		motorSpeedBuffer.syncGet(motorSpeed);
 		xprintf("new motor speed received: %d", motorSpeed);
+
 		motor.setSpeed(motorSpeed);
+
 	}
 }
