@@ -11,6 +11,9 @@
 #define PARAM_LENGTH 6
 #define BIAS_BUFFER_SIZE 100
 
+extern bool DEBUG; //one-time status messages
+extern bool DBGOUT; //periodic, fast outputs
+
 //structs
 struct CommStruct{
 	char param[6];
@@ -53,13 +56,13 @@ enum SkyNetTMType{
 	ROTVEL,
 };
 
-//topics
+//topic IDs
 enum SkyNetTopicID{
 	TelecommandoTopicID = 23456,
 	UserButtonTopicID = 34567,
 };
 //TM
-extern Topic<CommStruct> tc;
+extern Topic<CommStruct> tcTopic;
 extern Topic<uint32_t> lightTopic;
 extern Topic<RawVector3D> gyroTopic;
 extern Topic<RawVector3D> accTopic;

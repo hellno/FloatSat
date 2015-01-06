@@ -53,6 +53,7 @@ void Motor::setSpeed(uint8_t percentage){
 		this->startMotor();
 
 	pwm.write(percentage);
+	if(DEBUG) xprintf("set new motor speed to %d%\n", percentage);
 }
 
 void Motor::dbgStatus(){

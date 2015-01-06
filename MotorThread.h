@@ -18,6 +18,7 @@ public:
 	MotorThread(const char* name);
 	void init();
 	void run();
+	void setMotorSpeed(uint8_t newMotorSpeed);
 };
 
 #endif /* MOTORTHREAD_H_ */

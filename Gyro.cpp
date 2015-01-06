@@ -131,7 +131,7 @@ uint8_t Gyro::readBias(void) {
 	err[0] = imuI2C.writeRead(GYRO_SLAVE_ADDRESS, txBuf, 1, rxBuf, 1);
 
 	if (err[0] < 0) {
-		xprintf("error while reading gyro bias//init IMU\n\n");
+		xprintf("## error while reading gyro bias//init IMU ##\n\n");
 		return false;
 	}
 	return rxBuf[0];
@@ -148,7 +148,7 @@ void Gyro::read(void) {
 	txBuf[0] = GYRO_X_L | 0x80;
 	err[0] = imuI2C.writeRead(GYRO_SLAVE_ADDRESS, txBuf, 1, rxBuf, 6);
 	if (err[0] < 0) {
-		xprintf("error while reading gyro data//init IMU\n\n");
+		xprintf("## error while reading gyro data//init IMU ##\n\n");
 		memset(rxBuf, 0, sizeof(rxBuf));
 	}
 	x = (rxBuf[1] << 8) | rxBuf[0] - xBias;
@@ -156,4 +156,24 @@ void Gyro::read(void) {
 	z = (rxBuf[5] << 8) | rxBuf[4] - zBias;
 
 	//xprintf("gyro data: [%d|%d|%d]\n", gx, gy, gz);
+}
+
+uint16_t Gyro::getX(void){
+	return x - xBias;
+}
+uint16_t Gyro::getY(void){
+	return y - yBias;
+}
+uint16_t Gyro::getZ(void){
+	return z - zBias;
+}
+
+uint16_t Gyro::getXBias(void){
+	return xBias;
+}
+uint16_t Gyro::getYBias(void){
+	return yBias;
+}
+uint16_t Gyro::getZBias(void){
+	return zBias;
 }

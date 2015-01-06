@@ -23,9 +23,9 @@ const uint8_t tmpDataCmd[] = { 0x80 | TEMP_LOW };
 
 RawVector3D gyroOffset;
 
-IMU::IMU(const char* name) : Thread(name){
+IMU::IMU(const char* name, uint64_t periode) : Thread(name){
+	this->periode = periode;
 }
-
 
 void IMU::init(){
 	imuGPIO = HAL_GPIO(IMU_PORT);
@@ -36,7 +36,7 @@ void IMU::init(){
 	if(error == 0)
 		xprintf("\ni2c IMU successfully initialised\n");
 	else
-		xprintf("\ni2c IMU ERROR@init\n");
+		xprintf("\n## i2c IMU ERROR@init ##\n");
 
 	gyro = Gyro();
 	gyro.init();
@@ -66,45 +66,35 @@ bool IMU::readCheck(uint8_t slave_address, uint8_t address, uint8_t targetValue)
 }
 
 
-void IMU::calcGyroBias(void){
-	long x_sum = 0.0, y_sum = 0.0, z_sum = 0.0;
-	for(uint8_t i = 0; i < 100; i++){
+void IMU::calcBias(void){
+	/* ACCELEROMETER */
+	long	x_sum = 0.0, y_sum = 0.0, z_sum = 0.0,
+			xAccSum = 0.0, yAccSum = 0.0, zAccSum = 0.0,
+			xMagSum = 0.0,yMagSum = 0.0, zMagSum = 0.0 ;
 
+	for(uint8_t i = 0; i < BIAS_BUFFER_SIZE; i++){
 		gyro.read();
 
-		x_sum += gyro.x;
-		y_sum += gyro.y;
-		z_sum += gyro.z;
-
-		suspendCallerUntil(NOW() + 10 * MILLISECONDS);
-	}
-
-	x_sum /= 100, y_sum /= 100, z_sum /= 100;
-
-	xprintf("gyro bias: [%ld|%ld|%ld]\n", x_sum, y_sum, z_sum);
-	//xprintf("max uint16_t: %ld\n", UINT16_MAX);
-
-	gyro.setBias(x_sum, y_sum, z_sum);
-}
-
-void IMU::calcAccBias(void){
-	/* ACCELEROMETER */
-	long xAccSum = 0.0, yAccSum = 0.0, zAccSum = 0.0,
-			xMagSum = 0.0,yMagSum = 0.0, zMagSum = 0.0 ;
-	for(uint8_t i = 0; i < BIAS_BUFFER_SIZE; i++){
+		x_sum += gyro.getX();
+		y_sum += gyro.getY();
+		z_sum += gyro.getZ();
 
 		acc.read();
 
-		xAccSum += acc.accX;
-		yAccSum += acc.accY;
-		zAccSum += acc.accZ;
+		xAccSum += acc.getAccX();
+		yAccSum += acc.getAccY();
+		zAccSum += acc.getAccZ();
 
-		xMagSum += acc.magX;
-		yMagSum += acc.magY;
-		zMagSum += acc.magZ;
+		xMagSum += acc.getMagX();
+		yMagSum += acc.getMagY();
+		zMagSum += acc.getMagZ();
 
 		suspendCallerUntil(NOW() + 10 * MILLISECONDS);
 	}
+
+	gyro.setBias(x_sum / BIAS_BUFFER_SIZE,
+			y_sum / BIAS_BUFFER_SIZE,
+			z_sum / BIAS_BUFFER_SIZE);
 
 	acc.setAccBias(xAccSum / BIAS_BUFFER_SIZE,
 			yAccSum / BIAS_BUFFER_SIZE,
@@ -113,72 +103,52 @@ void IMU::calcAccBias(void){
 	acc.setMagBias(xMagSum / BIAS_BUFFER_SIZE,
 			yMagSum / BIAS_BUFFER_SIZE,
 			zMagSum / BIAS_BUFFER_SIZE);
-
-	xprintf("acc bias: [%ld|%ld|%ld]\n", acc.accXBias, acc.accYBias, acc.accZBias);
-	xprintf("mag bias: [%ld|%ld|%ld]\n", acc.magXBias, acc.magYBias, acc.magZBias);
-
+	if (DEBUG){
+		xprintf("gyro bias: [%ld|%ld|%ld]\n", gyro.getXBias(), gyro.getYBias(), gyro.getZBias());
+		xprintf("acc bias: [%ld|%ld|%ld]\n", acc.getAccXBias(), acc.getAccYBias(), acc.getAccZBias());
+		xprintf("mag bias: [%ld|%ld|%ld]\n", acc.getMagXBias(), acc.getMagYBias(), acc.getMagZBias());
+	}
+}
+void IMU::setPeriode(uint64_t periode){
+	this->periode = periode;
+	if (DEBUG) xprintf("changed IMU period to: %ld\n", this->periode);
 }
 
 void IMU::run(){
 	RawVector3D gyroRawData, accRawData, magRawData;
 
-	calcGyroBias();
-	calcAccBias();
+	calcBias();
 
-	TIME_LOOP(1 * SECONDS, 1 * SECONDS){
+	while(1){
+		suspendCallerUntil(NOW() + periode);
 
 		gyro.read();
-		gyroRawData.x = gyro.x - gyro.xBias;
-		gyroRawData.y = gyro.y - gyro.yBias;
-		gyroRawData.z = gyro.z - gyro.zBias;
+		gyroRawData.x = gyro.getX();
+		gyroRawData.y = gyro.getY();
+		gyroRawData.z = gyro.getZ();
 
-		xprintf("GYRDAT%d,%d,%d\n", gyroRawData.x, gyroRawData.y, gyroRawData.z);
+		if(DBGOUT) xprintf("GYRDAT%d,%d,%d\n", gyroRawData.x, gyroRawData.y, gyroRawData.z);
 
 		acc.read();
-		accRawData.x = acc.accX - acc.accXBias;
-		accRawData.y = acc.accY - acc.accYBias;
-		accRawData.z = acc.accZ - acc.accZBias;
+		accRawData.x = acc.getAccX();
+		accRawData.y = acc.getAccY();
+		accRawData.z = acc.getAccZ();
 
-		xprintf("ACCDAT%d,%d,%d\n", accRawData.x, accRawData.y, accRawData.z);
+		if(DBGOUT) xprintf("ACCDAT%d,%d,%d\n", accRawData.x, accRawData.y, accRawData.z);
 
-		magRawData.x = acc.magX - acc.magXBias;
-		magRawData.y = acc.magY - acc.magYBias;
-		magRawData.z = acc.magZ - acc.magZBias;
+		magRawData.x = acc.getMagX();
+		magRawData.y = acc.getMagY();
+		magRawData.z = acc.getMagZ();
 
-		xprintf("MAGDAT%d,%d,%d\n", magRawData.x, magRawData.y, magRawData.z);
+		if(DBGOUT) xprintf("MAGDAT%d,%d,%d\n", magRawData.x, magRawData.y, magRawData.z);
 
-//		accTopic.publish(accRawData);
-//		gyroTopic.publish(gyroRawData);
-//		magTopic.publish(magRawData);
+		accTopic.publish(accRawData);
+		gyroTopic.publish(gyroRawData);
+		magTopic.publish(magRawData);
+
 //		tempTopic.publish(temperature);
 
 	}
 
 }
-
-//GYRO INTEGRATE STUFF
-//		if(dataCounter % RAW_DATA_BUFFER_SIZE == 0){
-//
-//			while(counter < RAW_DATA_BUFFER_SIZE){
-//				tempX += gyroRawData[counter].x;
-//				tempY += gyroRawData[counter].y;
-//				tempZ += gyroRawData[counter].z;
-//
-//				counter++;
-//			}
-//
-//			gyroData.x = tempX * GYRO_RAWDATA_FACTOR;
-//			gyroData.y = tempY * GYRO_RAWDATA_FACTOR;
-//			gyroData.z = tempZ * GYRO_RAWDATA_FACTOR;
-//
-//			xprintf("[%.2f|%.2f|%.2f]\n", gyroData.x, gyroData.y, gyroData.z);
-//
-//			gyroTopic.publish(gyroData);
-//
-//			tempX = 0.0, tempY = 0.0, tempZ = 0.0;
-//			dataCounter = 0;
-//			counter = 0;
-//		}
-//
-//		dataCounter++;
 

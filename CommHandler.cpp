@@ -6,9 +6,13 @@
  */
 #include "CommHandler.h"
 
+#include <string>
+#include <stdlib.h>
+//#include "string.h"
+
 #define BUFFER_SIZE 256
 
-Topic<CommStruct> tc(-1, "TC");
+Topic<CommStruct> tcTopic(-1, "TC");
 
 char* sendString;
 
@@ -33,9 +37,9 @@ CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : T
 
 					size = uart->read(buf, BUFFER_SIZE);
 
-					parseStringToPacket(buf, size, &cs);
-
-					tc.publish(cs);
+					if (parseStringToPacket(buf, size, &cs)){
+						tcTopic.publish(cs);
+					}
 
 //					ECHO
 //					parsePacketToString(out, &cs);
@@ -44,13 +48,14 @@ CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : T
 			}
 	}
 
-	void CommHandler::parseStringToPacket(char * str, int size, CommStruct* cs){
-		if(size < 7)
-			return;
+	bool CommHandler::parseStringToPacket(char * str, int size, CommStruct* cs){
+		if(size < 7 && strlen(str) < 7)
+			return false;
 
 		sprintf(cs->param, "%.6s", str);
 		strncpy(cs->msg, str + 6, size - 6);
 		//sprintf(cs->msg, "%.*s", str - 7, str + 6);
+		return true;
 	}
 
 	void CommHandler::parsePacketToString(char * out, CommStruct *cs){

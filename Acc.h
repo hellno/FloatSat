@@ -17,7 +17,8 @@
 #define ACC_POWER_CMD 0b01010111 //<- 50Hz, all axes
 
 #define ACC_CTRL_REG5 0x24
-#define ACC_ACT_TEMP 0b11110000 //<- act. temp sens, hi magn res, mag data rat=50Hz
+#define ACC_ACT_TEMP 0b11000000 //<- temp sens ON
+#define OLD_ACC_ACT_TEMP 0b11110000 //<- temp sens ON, hi magn res, mag data rat=50Hz
 #define CS_ACC_PORT GPIO_032 //=PC00
 
 #define MAG_X_L 0x08
@@ -52,6 +53,16 @@ private:
 	uint16_t txBuf16[3];
 	int32_t err[2];
 	uint16_t result;
+
+	bool isBiasSet;
+
+	uint16_t accX, accY, accZ;
+	uint16_t accXBias, accYBias, accZBias;
+
+	uint16_t magX, magY, magZ;
+	uint16_t magXBias, magYBias, magZBias;
+
+	uint16_t temp;
 public:
 	void init(void);
 	void stop(void);
@@ -61,13 +72,23 @@ public:
 	void setAccBias(uint16_t x,uint16_t y,uint16_t z);
 	void setMagBias(uint16_t x,uint16_t y,uint16_t z);
 
-	uint16_t accX, accY, accZ;
-	uint16_t accXBias, accYBias, accZBias;
+	bool biasIsSet(void);
 
-	uint16_t magX, magY, magZ;
-	uint16_t magXBias, magYBias, magZBias;
+	uint16_t getAccX(void);
+	uint16_t getAccY(void);
+	uint16_t getAccZ(void);
+	uint16_t getMagX(void);
+	uint16_t getMagY(void);
+	uint16_t getMagZ(void);
 
-	uint16_t temp;
+	uint16_t getAccXBias(void);
+	uint16_t getAccYBias(void);
+	uint16_t getAccZBias(void);
+	uint16_t getMagXBias(void);
+	uint16_t getMagYBias(void);
+	uint16_t getMagZBias(void);
+
+	uint16_t getTemp(void);
 };
 
 #endif /* ACC_H_ */

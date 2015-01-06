@@ -65,6 +65,9 @@ private:
 	uint16_t txBuf16[3];
 	int32_t err[2];
 	uint16_t result;
+
+	uint16_t x, y, z;
+	uint16_t xBias, yBias, zBias;
 public:
 	void init(void);
 	void stop(void);
@@ -79,8 +82,13 @@ public:
 	uint8_t getModel(void);
 	uint8_t readBias(void);
 
-	uint16_t x, y, z;
-	uint16_t xBias, yBias, zBias;
+	uint16_t getX(void);
+	uint16_t getY(void);
+	uint16_t getZ(void);
+
+	uint16_t getXBias(void);
+	uint16_t getYBias(void);
+	uint16_t getZBias(void);
 };
 
 #endif /* GYRO_H_ */

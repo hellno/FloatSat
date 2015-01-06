@@ -42,6 +42,9 @@ public:
 	void init();
 	void run();
 	uint32_t calculateLux(uint16_t ch0, uint16_t ch1);
+	void turnOn(void);
+	void turnOff(void);
+	void setPeriode(uint64_t periode);
 };
 
 

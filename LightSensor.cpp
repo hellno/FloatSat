@@ -56,14 +56,13 @@ Topic<uint32_t> lightTopic(-1, "LightTopic");
 LightSensor::LightSensor(const char* name, HAL_I2C *i2c,  uint64_t periode){
 	this->i2c = i2c;
 
-	//default integration time = 400ms
 	if(periode < 100 * MILLISECONDS)
 		this->periode = 100 * MILLISECONDS;
 	else
 		this->periode = periode;
 }
 void LightSensor::init(){
-	xprintf("start lightsensor init\n");
+//	xprintf("start lightsensor init\n");
 	int32_t error = i2c->init();
 	if(error == 0)
 		xprintf("i2c successfully initialised\n");
@@ -101,10 +100,8 @@ void LightSensor::run(){
 
 	TIME_LOOP(0, periode){
 
-
 		err[0] = i2c->writeRead(SLAVE_ADDRESS, channel0CMD, 1, channel0, 2);
 		err[1] = i2c->writeRead(SLAVE_ADDRESS, channel1CMD, 1, channel1, 2);
-
 
 		if(err[1] > 0 && err[0 > 0]){
 			channel0_combined = (channel0[0] << 8) + channel0[1];
@@ -119,11 +116,13 @@ void LightSensor::run(){
 			lux =  calculateLux(channel0_combined, channel1_combined);
 			lightTopic.publish(lux);
 
-			xprintf("lux: %d\n", lux);
+			if (DBGOUT) xprintf("lux: %d\n", lux);
 
 		}else{
-			xprintf("err@reading i2c sun registers\n");
-			xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
+			if (DBGOUT) {
+				xprintf("err@reading i2c sun registers\n");
+				xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
+			}
 		}
 
 	}
@@ -179,4 +178,9 @@ uint32_t LightSensor::calculateLux(uint16_t ch0, uint16_t ch1)
 	uint32_t lux = temp >> TSL2561_LUX_LUXSCALE;
 	// Signal I2C had no errors
 	return lux;
+}
+
+void LightSensor::setPeriode(uint64_t periode){
+	this->periode = periode;
+	if (DEBUG) xprintf("changed LightSensor period to: %ld\n", this->periode);
 }

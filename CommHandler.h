@@ -13,9 +13,6 @@
 #include <stdio.h>
 #include "hal.h"
 #include "hal/hal_uart.h"
-#include <string>
-
-#include <stdlib.h>
 
 class CommHandler : public Thread{
 private:
@@ -26,7 +23,7 @@ public:
 	CommHandler(const char* name, HAL_UART *uart, uint64_t periode);
 	void init();
 	void run();
-	void parseStringToPacket(char * str, int size, CommStruct* cs);
+	bool parseStringToPacket(char * str, int size, CommStruct* cs);
 	void parsePacketToString(char * out, CommStruct *cs);
 	void sendPacket(SkyNetTMType paramType, char* msg);
 };
