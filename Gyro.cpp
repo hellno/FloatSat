@@ -65,8 +65,11 @@ void Gyro::init(void) {
 	00=disabled, 01=st 0 (x+, y-, z-), 10=undefined, 11=st 1 (x-, y+, z+)
 	SIM - SPI serial interface mode select
 	0=4 wire, 1=3 wire */
+
 	txBuf[0] = CTRL_REG4_G;
-	txBuf[1] = 0x00;
+	txBuf[1] = 0x20; //= gyroScale2000
+	this->scale = dps2000Scale;
+
 	if (imuI2C.write(GYRO_SLAVE_ADDRESS, txBuf, 2) < 0)
 		imuI2C.init();
 	/* CTRL_REG5_G sets up the FIFO, HPF, and INT1
@@ -82,7 +85,6 @@ void Gyro::init(void) {
 
 	if (imuI2C.write(GYRO_SLAVE_ADDRESS, txBuf, 2) < 0)
 		imuI2C.init();
-	calcgRes(G_SCALE_2000DPS);
 
 	xprintf("gyro init done\n");
 }
@@ -100,23 +102,6 @@ uint8_t Gyro::getModel(void) {
 	return rxBuf[0];
 }
 
-void Gyro::calcgRes(gyro_scale gScale) {
-	// Possible gyro scales (and their register bit settings) are:
-	// 245 DPS (00), 500 DPS (01), 2000 DPS (10). Here's a bit of an algorithm
-	// to calculate DPS/(ADC tick) based on that 2-bit value:
-	switch (gScale) {
-		case G_SCALE_245DPS:
-		gRes = 245.0 / 32768.0;
-		break;
-		case G_SCALE_500DPS:
-		gRes = 500.0 / 32768.0;
-		break;
-		case G_SCALE_2000DPS:
-		gRes = 2000.0 / 32768.0;
-		break;
-		}
-}
-
 void Gyro::stop(void) {
 	if (isOn & gpioGyro.read() == 1) {
 	gpioGyro.init(false, 1, 1);
@@ -124,18 +109,6 @@ void Gyro::stop(void) {
 	isOn = false;
 }
 
-uint8_t Gyro::readBias(void) {
-	memset(rxBuf, 0, sizeof(rxBuf));
-	memset(txBuf, 0, sizeof(txBuf));
-	txBuf[0] = CTRL_REG5_G;
-	err[0] = imuI2C.writeRead(GYRO_SLAVE_ADDRESS, txBuf, 1, rxBuf, 1);
-
-	if (err[0] < 0) {
-		xprintf("## error while reading gyro bias//init IMU ##\n\n");
-		return false;
-	}
-	return rxBuf[0];
-}
 void Gyro::setBias(uint16_t x,uint16_t y,uint16_t z){
 	xBias = x;
 	yBias = y;
@@ -158,22 +131,22 @@ void Gyro::read(void) {
 	//xprintf("gyro data: [%d|%d|%d]\n", gx, gy, gz);
 }
 
-uint16_t Gyro::getX(void){
-	return x - xBias;
+int16_t Gyro::getX(void){
+	return (x - dps2000Bias) * scale - xBias;
 }
-uint16_t Gyro::getY(void){
-	return y - yBias;
+int16_t Gyro::getY(void){
+	return (y - dps2000Bias) * scale - yBias;
 }
-uint16_t Gyro::getZ(void){
-	return z - zBias;
+int16_t Gyro::getZ(void){
+	return (z - dps2000Bias) * scale - zBias;
 }
 
-uint16_t Gyro::getXBias(void){
+int16_t Gyro::getXBias(void){
 	return xBias;
 }
-uint16_t Gyro::getYBias(void){
+int16_t Gyro::getYBias(void){
 	return yBias;
 }
-uint16_t Gyro::getZBias(void){
+int16_t Gyro::getZBias(void){
 	return zBias;
 }

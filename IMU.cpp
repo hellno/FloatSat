@@ -117,7 +117,7 @@ void IMU::setPeriode(uint64_t periode){
 void IMU::run(){
 	RawVector3D gyroRawData, accRawData, magRawData;
 
-	calcBias();
+	//calcBias();
 
 	while(1){
 		suspendCallerUntil(NOW() + periode);
@@ -145,6 +145,8 @@ void IMU::run(){
 		accTopic.publish(accRawData);
 		gyroTopic.publish(gyroRawData);
 		magTopic.publish(magRawData);
+
+		if(DBGOUT) xprintf("HEADNG%f\n", acc.getOrientation());
 
 //		tempTopic.publish(temperature);
 

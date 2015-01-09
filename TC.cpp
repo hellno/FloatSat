@@ -49,13 +49,21 @@ void TC::handlePacket(CommStruct *cs){
 		xprintf("TODO SETROT");
 	} else if(paramIsEqualTo(cs, "IMUPRD")){
 		imu->setPeriode(atoi(cs->msg) * MILLISECONDS);
-	} else if(paramIsEqualTo(cs, "IMUINI")){
+	} else if(paramIsEqualTo(cs, "LGTPRD")){
+		ls->setPeriode(atoi(cs->msg) * MILLISECONDS);
+	}else if(paramIsEqualTo(cs, "IMUINI")){
 		imu->init();
 	} else if(paramIsEqualTo(cs, "IMUCAL")){
 		imu->calcBias();
 	} else if(paramIsEqualTo(cs, "MOTINI")){
 		mt->init();
-	} else if (paramIsEqualTo(cs, "DBGOUT")){
+	} else if(paramIsEqualTo(cs, "LGTSTP")){
+		ls->suspendCallerUntil();
+		xprintf("stopped lightSensor\n");
+	} else if(paramIsEqualTo(cs, "LGTRUN")){
+		ls->resume();
+		xprintf("started lightSensor\n");
+	}else if (paramIsEqualTo(cs, "DBGOUT")){
 		if(msgIsEqualTo(cs, "1")){
 			DBGOUT = true;
 		}else{

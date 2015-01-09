@@ -24,7 +24,7 @@ HAL_UART uart_usb(UART_IDX3);
 HAL_I2C light_i2c(I2C_IDX3);
 HAL_I2C imuI2C(I2C_IDX2);
 
-IMU imu("IMU", 50 * MILLISECONDS);
+IMU imu("IMU", 500 * MILLISECONDS);
 
 CommHandler ch("CommHandler", &uart_usb, STD_PERIOD);
 LightSensor ls("LightSensor", &light_i2c, STD_PERIOD);

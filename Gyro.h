@@ -46,18 +46,17 @@
 
 #define GYRO_DEVICE_ID 0xD4
 
-enum gyro_scale {
-	G_SCALE_245DPS, // 00: 245 degrees per second
-	G_SCALE_500DPS, // 01: 500 dps
-	G_SCALE_2000DPS, // 10: 2000 dps
-};
+#define dps500Scale 0.0175f
+#define dps2000Scale 0.070f
+
+#define dps500Bias -16.3821f
+#define dps2000Bias -8.684791496320523f
 
 extern HAL_I2C imuI2C;
 
 class Gyro {
 private:
 	bool isOn;
-	float gRes;
 	HAL_GPIO gpioGyro;
 
 	uint8_t txBuf[3];
@@ -65,9 +64,10 @@ private:
 	uint16_t txBuf16[3];
 	int32_t err[2];
 	uint16_t result;
+	float scale;
 
-	uint16_t x, y, z;
-	uint16_t xBias, yBias, zBias;
+	int16_t x, y, z;
+	int16_t xBias, yBias, zBias;
 public:
 	void init(void);
 	void stop(void);
@@ -76,19 +76,18 @@ public:
 	void read(void);
 	void enableStreamMode(void);
 	void enableByPassMode(void);
-	void calcgRes(gyro_scale gScale);
 	void setBias(uint16_t x,uint16_t y,uint16_t z);
+
 	uint8_t readNumberOfSamples(void);
 	uint8_t getModel(void);
-	uint8_t readBias(void);
 
-	uint16_t getX(void);
-	uint16_t getY(void);
-	uint16_t getZ(void);
+	int16_t getX(void);
+	int16_t getY(void);
+	int16_t getZ(void);
 
-	uint16_t getXBias(void);
-	uint16_t getYBias(void);
-	uint16_t getZBias(void);
+	int16_t getXBias(void);
+	int16_t getYBias(void);
+	int16_t getZBias(void);
 };
 
 #endif /* GYRO_H_ */

@@ -98,7 +98,8 @@ void LightSensor::run(){
 
 	uint32_t lux = 0;
 
-	TIME_LOOP(0, periode){
+	while(1){
+		suspendCallerUntil(NOW() + periode);
 
 		err[0] = i2c->writeRead(SLAVE_ADDRESS, channel0CMD, 1, channel0, 2);
 		err[1] = i2c->writeRead(SLAVE_ADDRESS, channel1CMD, 1, channel1, 2);
@@ -120,8 +121,8 @@ void LightSensor::run(){
 
 		}else{
 			if (DBGOUT) {
-				xprintf("err@reading i2c sun registers\n");
-				xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
+//				xprintf("err@reading i2c sun registers\n");
+//				xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
 			}
 		}
 

@@ -20,7 +20,6 @@ struct CommStruct{
 	char * msg;
 };
 
-
 struct RawVector3D{
 	int16_t x;
 	int16_t y;
