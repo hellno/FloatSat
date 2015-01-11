@@ -10,9 +10,11 @@
 
 #include "rodos.h"
 #include "topics.h"
-#include "LightSensor.h"
-#include "IMU.h"
-#include "MotorThread.h"
+#include "Hardware/IMU.h"
+#include "Hardware/LightSensor.h"
+#include "Hardware/MotorThread.h"
+#include "TM.h"
+#include "Satellite.h"
 
 class TC : public Thread, public Subscriber{
 private:
@@ -21,7 +23,7 @@ private:
 	MotorThread *mt;
 
 	void handlePacket(CommStruct *cs);
-	void changeMode(SkyNetModes mode);
+	void changeMode(SkyNetMode mode);
 	bool paramIsEqualTo(CommStruct *cs, const char* param);
 	bool msgIsEqualTo(CommStruct *cs, const char* msg);
 public:

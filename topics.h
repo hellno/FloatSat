@@ -8,6 +8,10 @@
 #ifndef TOPICS_H_
 #define TOPICS_H_
 
+#include <cmath>
+#include <stdio.h>
+
+#define STD_PERIOD 100 * MILLISECONDS
 #define PARAM_LENGTH 6
 #define BIAS_BUFFER_SIZE 100
 
@@ -32,12 +36,13 @@ struct Vector3D{
 	float z;
 };
 
-enum SkyNetModes{
+enum SkyNetMode{
 	STDNBY,
 	ROTMOD,
 	COMPAS,
 	SUNFIN,
 	MISION,
+	SkyNetModeCount, // <- keep this as last item
 };
 
 enum SkyNetTMType{
@@ -53,6 +58,8 @@ enum SkyNetTMType{
 	VOLMOT,
 	PWMSIG,
 	ROTVEL,
+	ORIENT,
+	SkyNetTMTypeCount,  // <- keep this as last item
 };
 
 //topic IDs
@@ -60,23 +67,17 @@ enum SkyNetTopicID{
 	TelecommandoTopicID = 23456,
 	UserButtonTopicID = 34567,
 };
+
 //TM
-extern Topic<CommStruct> tcTopic;
+extern Topic<CommStruct> tmTopic;
+
 extern Topic<uint32_t> lightTopic;
 extern Topic<RawVector3D> gyroTopic;
 extern Topic<RawVector3D> accTopic;
 extern Topic<RawVector3D> magTopic;
-extern Topic<uint8_t> tempTopic;
-
+extern Topic<float> tempTopic;
+extern Topic<float> orientationTopic;
 //TC
-extern Topic<uint8_t> motorSpeedTopic;
-
-//Hardware
-extern Topic<bool> buttonTopic;
-
-//to access and process incoming commands
-//create a class and add..
-//CommBuffer<CommStruct> tcfifo;
-//Subscriber sub(tc, tcfifo);
+extern Topic<CommStruct> tcTopic;
 
 #endif /* TOPICS_H_ */

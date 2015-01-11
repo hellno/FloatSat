@@ -8,13 +8,14 @@
 
 #include <string>
 #include <stdlib.h>
-//#include "string.h"
 
 #define BUFFER_SIZE 256
 
 Topic<CommStruct> tcTopic(-1, "TC");
+Topic<CommStruct> tmTopic(-1, "TM");
+Fifo<CommStruct, 64> tmFifo;
+Subscriber tmSubscriber(tmTopic, tmFifo, "tmSub");
 
-char* sendString;
 
 CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : Thread(name){
 			this->periode = periode;
@@ -45,6 +46,10 @@ CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : T
 //					parsePacketToString(out, &cs);
 //					xprintf("%s\n",out);
 				}
+
+				if(!tmFifo.isEmpty()){
+					tmFifo.get(cs);
+				}
 			}
 	}
 
@@ -62,15 +67,6 @@ CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) : T
 		sprintf(out, "PARAM: '%s', MSG: '%s'", cs->param, cs->msg);
 	}
 
-	void CommHandler::sendPacket(SkyNetTMType paramType, char* msg){
-		switch(paramType){
-		case 1:
-			break;
-		default:
-			xprintf("wrong TM type\n");
-			break;
-		}
-	}
 
 
 

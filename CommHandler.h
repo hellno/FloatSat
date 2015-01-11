@@ -25,7 +25,6 @@ public:
 	void run();
 	bool parseStringToPacket(char * str, int size, CommStruct* cs);
 	void parsePacketToString(char * out, CommStruct *cs);
-	void sendPacket(SkyNetTMType paramType, char* msg);
 };
 
 #endif /* COMMHANDLER_H_ */

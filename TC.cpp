@@ -7,11 +7,14 @@
 
 #include "TC.h"
 #include "stdlib.h"
-#include "topics.h"
+
 
 static Fifo<CommStruct, 5> tcBuffer;
 bool DEBUG = true;
 bool DBGOUT = false;
+
+extern TM tm;
+extern Satellite skyNet;
 
 TC::TC(const char* name, IMU *imu, LightSensor *ls, MotorThread *mt) : Subscriber(tcTopic, name){
 	this->imu = imu;
@@ -59,10 +62,16 @@ void TC::handlePacket(CommStruct *cs){
 		mt->init();
 	} else if(paramIsEqualTo(cs, "LGTSTP")){
 		ls->suspendCallerUntil();
-		xprintf("stopped lightSensor\n");
+		if (DEBUG) xprintf("stopped lightSensor\n");
 	} else if(paramIsEqualTo(cs, "LGTRUN")){
 		ls->resume();
-		xprintf("started lightSensor\n");
+		if (DEBUG) xprintf("started lightSensor\n");
+	} else if(paramIsEqualTo(cs, "TMSTOP")){
+		tm.turnOff();
+		if (DEBUG) xprintf("stop TM\n");
+	}else if(paramIsEqualTo(cs, "TMSTRT")){
+		tm.turnOn();
+		if (DEBUG) xprintf("start TM\n");
 	}else if (paramIsEqualTo(cs, "DBGOUT")){
 		if(msgIsEqualTo(cs, "1")){
 			DBGOUT = true;
@@ -86,6 +95,6 @@ bool TC::paramIsEqualTo(CommStruct *cs, const char* param){
 bool TC::msgIsEqualTo(CommStruct *cs, const char* msg){
 	return strcmp(cs->msg, msg) == 0;
 }
-void TC::changeMode(SkyNetModes mode){
+void TC::changeMode(SkyNetMode mode){
 
 }
