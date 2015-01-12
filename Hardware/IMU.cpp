@@ -7,13 +7,12 @@
 
 #include "IMU.h"
 
-#define DEBUG true
-
 Topic<RawVector3D> accTopic(-1, "accelerometer");
 Topic<RawVector3D> magTopic(-1, "magnetometer");
 Topic<RawVector3D> gyroTopic(-1, "gyro");
 Topic<float> tempTopic(-1, "temperature");
 Topic<float> orientationTopic(-1, "orientation");
+
 #define IMU_PORT GPIO_055 //=PD07
 
 uint32_t retVal = 0;
@@ -145,11 +144,13 @@ void IMU::run(){
 		orientation = acc.getOrientation();
 		temp = acc.getTemp();
 
-		accTopic.publish(accRawData);
-		gyroTopic.publish(gyroRawData);
-		magTopic.publish(magRawData);
-		orientationTopic.publish(orientation);
-		tempTopic.publish(temp);
+		if(DBGOUT){
+			accTopic.publish(accRawData);
+			gyroTopic.publish(gyroRawData);
+			magTopic.publish(magRawData);
+			orientationTopic.publish(orientation);
+			tempTopic.publish(temp);
+		}
 
 		if(DBGOUT) xprintf("HEADNG%f\n", orientation);
 		if(DBGOUT) xprintf("TMPIMU%f\n", temp);

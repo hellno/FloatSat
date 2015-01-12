@@ -6,7 +6,6 @@
  */
 
 #include "Satellite.h"
-
 #include "TC.h"
 #include "TM.h"
 
@@ -23,15 +22,26 @@ Satellite::Satellite(const char* name, uint64_t periode) : Thread(name){
 }
 
 void Satellite::init(void){
-
+	this->anglePID = AnglePID();
+	this->rotPID = RotPID();
 }
 
 void Satellite::run(void){
 	while(1){
 		suspendCallerUntil(NOW() + periode);
-		//prepare TM
-		tm.isOn();
-		//send TM
+
+		handleModePeriodic();
+	}
+}
+
+void Satellite::handleModePeriodic(void){
+	switch(mode){
+	case ROTMOD:
+		rotPID.run();
+		break;
+	case COMPAS:
+		anglePID.run();
+		break;
 	}
 }
 

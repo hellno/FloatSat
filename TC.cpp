@@ -9,7 +9,8 @@
 #include "stdlib.h"
 
 
-static Fifo<CommStruct, 5> tcBuffer;
+Fifo<CommStruct, 5> tcBuffer;
+
 bool DEBUG = true;
 bool DBGOUT = false;
 
@@ -42,7 +43,7 @@ void TC::run(){
 }
 
 void TC::handlePacket(CommStruct *cs){
-	if (DEBUG) xprintf("rec: param:%s,msg:%s\n", cs->param, cs->msg);
+	if (DEBUG) xprintf("TC: param:%s,msg:%s\n", cs->param, cs->msg);
 
 	if (paramIsEqualTo(cs, "SETPWM")){
 			mt->setMotorSpeed(atoi(cs->msg));
@@ -78,6 +79,7 @@ void TC::handlePacket(CommStruct *cs){
 		}else{
 			DBGOUT = false;
 		}
+		if (DEBUG) xprintf("DBGOUT is %d\n", DBGOUT);
 	} else if(paramIsEqualTo(cs, "DEBUGG")){
 		if(msgIsEqualTo(cs, "1")){
 			DEBUG = true;

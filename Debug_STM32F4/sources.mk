@@ -29,5 +29,6 @@ CPP_DEPS :=
 SUBDIRS := \
 tst \
 . \
+PID \
 Hardware \
 

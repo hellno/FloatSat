@@ -7,7 +7,7 @@
 
 #include "TM.h"
 
-#define FIFO_SIZE 1
+#define FIFO_SIZE 5
 
 Fifo<uint32_t, FIFO_SIZE> lightFifo;
 Fifo<RawVector3D, FIFO_SIZE> gyroFifo;
@@ -17,11 +17,11 @@ Fifo<float, FIFO_SIZE> tempFifo;
 Fifo<float, FIFO_SIZE> orientationFifo;
 
 Subscriber lightSubscriber(lightTopic, lightFifo, "lightSub");
-Subscriber gyroSubscriber(gyroTopic, gyroFifo, "lightSub");
-Subscriber accSubscriber(accTopic, accFifo, "lightSub");
-Subscriber magSubscriber(magTopic, magFifo, "lightSub");
-Subscriber tempSubscriber(tempTopic, tempFifo, "lightSub");
-Subscriber orientationSubscriber(orientationTopic, orientationFifo, "lightSub");
+Subscriber gyroSubscriber(gyroTopic, gyroFifo, "gyroSub");
+Subscriber accSubscriber(accTopic, accFifo, "accSub");
+Subscriber magSubscriber(magTopic, magFifo, "magSub");
+Subscriber tempSubscriber(tempTopic, tempFifo, "tempSub");
+Subscriber orientationSubscriber(orientationTopic, orientationFifo, "orientationSub");
 
 TM::TM(const char* name, uint64_t periode) : Thread(name){
 	this->periode = periode;
