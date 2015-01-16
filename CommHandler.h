@@ -5,8 +5,8 @@
  *      Author: holger
  */
 
-#ifndef COMMHANDLER_H_
-#define COMMHANDLER_H_
+#ifndef SKYNET_COMMHANDLER_H_
+#define SKYNET_COMMHANDLER_H_
 
 #include "rodos.h"
 #include "topics.h"
@@ -27,4 +27,4 @@ public:
 	void parsePacketToString(char * out, CommStruct *cs);
 };
 
-#endif /* COMMHANDLER_H_ */
+#endif /* SKYNET_COMMHANDLER_H_ */

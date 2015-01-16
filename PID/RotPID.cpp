@@ -10,8 +10,6 @@
 
 
 RotPID::RotPID(void){
-	if (DEBUG) xprintf("rotPID activated");
-
 	P = 0.0;
 	I = 0.0;
 	D = 0.0;

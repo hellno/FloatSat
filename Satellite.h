@@ -5,8 +5,8 @@
  *      Author: holger
  */
 
-#ifndef SATELLITE_H_
-#define SATELLITE_H_
+#ifndef SKYNET_SATELLITE_H_
+#define SKYNET_SATELLITE_H_
 
 #include "rodos.h"
 #include "topics.h"
@@ -31,4 +31,4 @@ public:
 	void handleModePeriodic(void);
 };
 
-#endif /* SATELLITE_H_ */
+#endif /* SKYNET_SATELLITE_H_ */

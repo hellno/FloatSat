@@ -9,8 +9,6 @@
 #include <string>
 #include <stdlib.h>
 
-#define BUFFER_SIZE 256
-
 Topic<CommStruct> tcTopic(-1, "TC");
 Topic<CommStruct> tmTopic(-1, "TM");
 Fifo<CommStruct, 64> tmFifo;
@@ -47,8 +45,9 @@ void CommHandler::run() {
 //			xprintf("ECHO %s\n", out);
 		}
 
-		if (!tmFifo.isEmpty()) {
-			tmFifo.get(cs);
+		if(tmFifo.get(cs)) {
+			parsePacketToString(buf, &cs);
+			//uart->write(buf, 6 + strlen(cs.msg));
 		}
 		cs = CommStruct();
 	}
@@ -64,6 +63,7 @@ bool CommHandler::parseStringToPacket(char * str, int size, CommStruct* cs) {
 
 	char * tmpVal;
 	tmpVal = (char*) malloc (size - 6);
+
 	tmpVal[size - 7] = '\0';
 
 	uint8_t j = 0;
@@ -72,11 +72,12 @@ bool CommHandler::parseStringToPacket(char * str, int size, CommStruct* cs) {
 		j++;
 	}
 
-	cs->msg = tmpVal;
+	strncpy(cs->msg, tmpVal, strlen(cs->msg));
 	return true;
 }
 
 void CommHandler::parsePacketToString(char * out, CommStruct *cs) {
-	sprintf(out, "PARAM: '%s', MSG: '%s'", cs->param, cs->msg);
+	xprintf("CH PARAM:%s,MSG:%s\n", cs->param, cs->msg);
+//--> real output:	sprintf(out, "%s%s\0\n", cs->param, cs->msg);
 }
 

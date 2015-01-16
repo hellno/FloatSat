@@ -19,11 +19,12 @@ Satellite::Satellite(const char* name, uint64_t periode) : Thread(name){
 		this->periode = periode;
 
 	mode = STDNBY;
+
+	this->anglePID = AnglePID();
+	this->rotPID = RotPID();
 }
 
 void Satellite::init(void){
-	this->anglePID = AnglePID();
-	this->rotPID = RotPID();
 }
 
 void Satellite::run(void){
@@ -36,6 +37,8 @@ void Satellite::run(void){
 
 void Satellite::handleModePeriodic(void){
 	switch(mode){
+	case STDNBY:
+		return;
 	case ROTMOD:
 		rotPID.run();
 		break;

@@ -7,14 +7,12 @@
 
 #include "AnglePID.h"
 
-Fifo<uint8_t, 5> angleFifo;
+Fifo<float, 5> angleFifo;
 Subscriber angleSub(orientationTopic, angleFifo, "orientationSubForAnglePID");
 
-uint8_t tempVal;
+float tempVal;
 
 AnglePID::AnglePID(void){
-	if (DEBUG) xprintf("anglePID activated");
-
 	P = 0.0;
 	I = 0.0;
 	D = 0.0;

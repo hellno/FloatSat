@@ -5,8 +5,8 @@
  *      Author: holger
  */
 
-#ifndef TOPICS_H_
-#define TOPICS_H_
+#ifndef SKYNET_TOPICS_H_
+#define SKYNET_TOPICS_H_
 
 #include <cmath>
 #include <stdio.h>
@@ -14,16 +14,20 @@
 #define STD_PERIOD 100 * MILLISECONDS
 #define PARAM_LENGTH 6
 #define BIAS_BUFFER_SIZE 100
+#define BUFFER_SIZE 64
 
 extern bool DEBUG; //one-time status messages
 extern bool DBGOUT; //periodic, fast outputs
 
 //structs
+//struct CommStruct{
+//	char param[6];
+//	char * msg;
+//};
 struct CommStruct{
 	char param[6];
-	char * msg;
+	char msg[64];
 };
-
 struct RawVector3D{
 	int16_t x;
 	int16_t y;
@@ -80,4 +84,4 @@ extern Topic<float> orientationTopic;
 //TC
 extern Topic<CommStruct> tcTopic;
 
-#endif /* TOPICS_H_ */
+#endif /* SKYNET_TOPICS_H_ */

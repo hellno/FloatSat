@@ -5,8 +5,8 @@
  *      Author: holger
  */
 
-#ifndef TM_H_
-#define TM_H_
+#ifndef SKYNET_TM_H_
+#define SKYNET_TM_H_
 #include "rodos.h"
 #include "topics.h"
 
@@ -27,4 +27,4 @@ public:
 	bool isOn(void);
 };
 
-#endif /* TM_H_ */
+#endif /* SKYNET_TM_H_ */

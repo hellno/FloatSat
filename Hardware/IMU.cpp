@@ -126,34 +126,31 @@ void IMU::run(){
 		gyroRawData.y = gyro.getY();
 		gyroRawData.z = gyro.getZ();
 
-		if(DBGOUT) xprintf("GYRDAT%d,%d,%d\n", gyroRawData.x, gyroRawData.y, gyroRawData.z);
-
 		acc.read();
 		accRawData.x = acc.getAccX();
 		accRawData.y = acc.getAccY();
 		accRawData.z = acc.getAccZ();
 
-		if(DBGOUT) xprintf("ACCDAT%d,%d,%d\n", accRawData.x, accRawData.y, accRawData.z);
-
 		magRawData.x = acc.getMagX();
 		magRawData.y = acc.getMagY();
 		magRawData.z = acc.getMagZ();
 
-		if(DBGOUT) xprintf("MAGDAT%d,%d,%d\n", magRawData.x, magRawData.y, magRawData.z);
-
 		orientation = acc.getOrientation();
 		temp = acc.getTemp();
 
-		if(DBGOUT){
-			accTopic.publish(accRawData);
-			gyroTopic.publish(gyroRawData);
-			magTopic.publish(magRawData);
-			orientationTopic.publish(orientation);
-			tempTopic.publish(temp);
-		}
+		accTopic.publish(accRawData);
+		gyroTopic.publish(gyroRawData);
+		magTopic.publish(magRawData);
+		orientationTopic.publish(orientation);
+		tempTopic.publish(temp);
 
-		if(DBGOUT) xprintf("HEADNG%f\n", orientation);
-		if(DBGOUT) xprintf("TMPIMU%f\n", temp);
+		if(DBGOUT){
+			xprintf("GYRDAT%d,%d,%d\n", gyroRawData.x, gyroRawData.y, gyroRawData.z);
+			xprintf("ACCDAT%d,%d,%d\n", accRawData.x, accRawData.y, accRawData.z);
+			xprintf("MAGDAT%d,%d,%d\n", magRawData.x, magRawData.y, magRawData.z);
+			xprintf("HEADNG%f\n", orientation);
+			xprintf("TMPIMU%f\n", temp);
+		}
 	}
 
 }

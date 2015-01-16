@@ -53,7 +53,7 @@
 
 Topic<uint32_t> lightTopic(-1, "LightTopic");
 
-LightSensor::LightSensor(const char* name, HAL_I2C *i2c,  uint64_t periode){
+LightSensor::LightSensor(const char* name, HAL_I2C *i2c,  uint64_t periode) : Thread(name) {
 	this->i2c = i2c;
 
 	if(periode < 100 * MILLISECONDS)

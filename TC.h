@@ -5,8 +5,8 @@
  *      Author: holger
  */
 
-#ifndef TC_H_
-#define TC_H_
+#ifndef SKYNET_TC_H_
+#define SKYNET_TC_H_
 
 #include "rodos.h"
 #include "topics.h"
@@ -33,4 +33,4 @@ public:
 	long put(const long topicId, const long len, const void* data, const NetMsgInfo& netMsgInfo);
 };
 
-#endif /* TC_H_ */
+#endif /* SKYNET_TC_H_ */
