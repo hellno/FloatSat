@@ -29,6 +29,8 @@ public:
 	SkyNetMode getCurrentMode(void);
 	void switchMode(void);
 	void handleModePeriodic(void);
+	void setDestinationAngle(uint8_t angle);
+	void setAnglePIDConst(PIDConstant select, float val);
 };
 
 #endif /* SKYNET_SATELLITE_H_ */

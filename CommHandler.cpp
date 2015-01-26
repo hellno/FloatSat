@@ -14,19 +14,21 @@ Topic<CommStruct> tmTopic(-1, "TM");
 Fifo<CommStruct, 64> tmFifo;
 Subscriber tmSubscriber(tmTopic, tmFifo, "tmSub");
 
+char strBuf[BUFFER_SIZE];
+
 CommHandler::CommHandler(const char* name, HAL_UART *uart, uint64_t periode) :
 		Thread(name) {
 	this->periode = periode;
 	this->uart = uart;
 }
 
-void CommHandler::init() {
+void CommHandler::init(void) {
 	uart->init(115200);
 }
 
-void CommHandler::run() {
+void CommHandler::run(void) {
 	char buf[BUFFER_SIZE];
-	char out[BUFFER_SIZE];
+
 	int size = 0;
 	CommStruct cs;
 
@@ -40,14 +42,15 @@ void CommHandler::run() {
 				tcTopic.publish(cs);
 			}
 
-//			ECHO
-//			parsePacketToString(out, &cs);
-//			xprintf("ECHO %s\n", out);
+/*		ECHO	*/
+//			xprintf("--> ECHO p:%.6s m:%s\n", cs.param, cs.msg);
 		}
 
 		if(tmFifo.get(cs)) {
 			parsePacketToString(buf, &cs);
-			//uart->write(buf, 6 + strlen(cs.msg));
+//			xprintf("buf: %s\n", buf);
+//			xprintf("len: param: %d, msg: %d\n", strlen(cs.param), strlen(cs.msg));
+			uart->write(buf, 8 + strlen(cs.msg));
 		}
 		cs = CommStruct();
 	}
@@ -57,27 +60,30 @@ bool CommHandler::parseStringToPacket(char * str, int size, CommStruct* cs) {
 	if (size < 7 && strlen(str) < 7)
 		return false;
 
-//	xprintf("msg-size: %d, strlen: %d\n", size - 7, strlen(str));
+	size_t len = strlen(str) - 6;
 
-	sprintf(cs->param, "%.6s", str);
+//	xprintf("msg-len: %d\n", len);
 
-	char * tmpVal;
-	tmpVal = (char*) malloc (size - 6);
+	sprintf(cs->param, "%.6s\0", str);
 
-	tmpVal[size - 7] = '\0';
+	if(len > 0){
+		char tmpVal[len];
 
-	uint8_t j = 0;
-	for(uint8_t i = 6; i < strlen(str); i++){
-		*(tmpVal + j) = *(str+i);
-		j++;
+		for(uint8_t i = 0; i < len; i++){
+			*(tmpVal + i) = *(str + 6 + i);
+		}
+
+		sprintf(cs->msg, "%s\0", tmpVal);
 	}
 
-	strncpy(cs->msg, tmpVal, strlen(cs->msg));
 	return true;
 }
 
-void CommHandler::parsePacketToString(char * out, CommStruct *cs) {
-	xprintf("CH PARAM:%s,MSG:%s\n", cs->param, cs->msg);
-//--> real output:	sprintf(out, "%s%s\0\n", cs->param, cs->msg);
+void CommHandler::parsePacketToString(char * outStr, CommStruct *cs) {
+	//sprintf(out, "%.6s%s\0\n", cs->param, cs->msg);
+	sprintf(outStr, "%.6s%s\r\n", cs->param, cs->msg);
+
+	//DEBUG OUTPUT:
+	//xprintf("CH PARAM:%.6s,MSG:%s\n", cs->param, cs->msg);
 }
 

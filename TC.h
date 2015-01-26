@@ -23,7 +23,6 @@ private:
 	MotorThread *mt;
 
 	void handlePacket(CommStruct *cs);
-	void changeMode(SkyNetMode mode);
 	bool paramIsEqualTo(CommStruct *cs, const char* param);
 	bool msgIsEqualTo(CommStruct *cs, const char* msg);
 public:

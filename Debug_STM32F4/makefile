@@ -58,9 +58,10 @@ all: STM32F4_RODOS_Template.elf secondary-outputs
 STM32F4_RODOS_Template.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -T "C:\Users\holger\Desktop\Eclipse Luna SR1\Workspace\rodos\src\bare-metal\stm32f4\scripts\stm32_flash.ld" -nostartfiles -nodefaultlibs -nostdlib -Xlinker --gc-sections -L"C:\Users\holger\Desktop\Eclipse Luna SR1\Workspace\rodos\Debug_STM32F4" -L"C:\Users\holger\Desktop\Eclipse Luna SR1\Workspace\support_libs\Debug_STM32F4" -Wl,-Map,"STM32F4_RODOS_Template.map" -o "STM32F4_RODOS_Template.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -T "C:\Users\holger\Desktop\FloatSat\Workspace\rodos\src\bare-metal\stm32f4\scripts\stm32_flash.ld" -nostartfiles -nodefaultlibs -nostdlib -Xlinker --gc-sections -L"C:\Users\holger\Desktop\FloatSat\Workspace\rodos\Debug_STM32F4" -L"C:\Users\holger\Desktop\FloatSat\Workspace\support_libs\Debug_STM32F4" -Wl,-Map,"STM32F4_RODOS_Template.map" -o "STM32F4_RODOS_Template.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
+	$(MAKE) --no-print-directory post-build
 
 STM32F4_RODOS_Template.hex: STM32F4_RODOS_Template.elf
 	@echo 'Invoking: Cross ARM GNU Create Flash Image'
@@ -79,9 +80,14 @@ clean:
 	-$(RM) $(CC_DEPS)$(C++_DEPS)$(OBJS)$(C_UPPER_DEPS)$(CXX_DEPS)$(SECONDARY_FLASH)$(SECONDARY_SIZE)$(ASM_DEPS)$(S_UPPER_DEPS)$(C_DEPS)$(CPP_DEPS) STM32F4_RODOS_Template.elf
 	-@echo ' '
 
+post-build:
+	-@echo 'creates TC command list'
+	-C:\Users\holger\Desktop\FloatSat\SkyNetResponder.exe -f C:\Users\holger\Desktop\FloatSat\Workspace\STM32F4_RODOS_Template\TC.cpp
+	-@echo ' '
+
 secondary-outputs: $(SECONDARY_FLASH) $(SECONDARY_SIZE)
 
 .PHONY: all clean dependents
-.SECONDARY:
+.SECONDARY: post-build
 
 -include ../makefile.targets

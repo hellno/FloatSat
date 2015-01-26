@@ -16,16 +16,14 @@
 #define BIAS_BUFFER_SIZE 100
 #define BUFFER_SIZE 64
 
+#define PID_ERROR_THRESHOLD 5
+
 extern bool DEBUG; //one-time status messages
 extern bool DBGOUT; //periodic, fast outputs
 
 //structs
-//struct CommStruct{
-//	char param[6];
-//	char * msg;
-//};
 struct CommStruct{
-	char param[6];
+	char param[7];
 	char msg[64];
 };
 struct RawVector3D{
@@ -64,6 +62,12 @@ enum SkyNetTMType{
 	ROTVEL,
 	ORIENT,
 	SkyNetTMTypeCount,  // <- keep this as last item
+};
+
+enum PIDConstant{
+	P,
+	I,
+	D,
 };
 
 //topic IDs

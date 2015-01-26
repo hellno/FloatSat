@@ -25,6 +25,13 @@ Satellite::Satellite(const char* name, uint64_t periode) : Thread(name){
 }
 
 void Satellite::init(void){
+
+}
+
+void Satellite::setDestinationAngle(uint8_t angle){
+	if(mode == COMPAS){
+		anglePID.setDestinationAngle(angle);
+	}
 }
 
 void Satellite::run(void){
@@ -85,4 +92,20 @@ void Satellite::switchMode(void){
 }
 SkyNetMode Satellite::getCurrentMode(void){
 	return mode;
+}
+
+void Satellite::setAnglePIDConst(PIDConstant select, float val){
+	switch(select){
+	case(P):
+			anglePID.setP(val);
+			break;
+	case(I):
+			anglePID.setI(val);
+			break;
+	case(D):
+			anglePID.setD(val);
+			break;
+	default:
+		return;
+	}
 }

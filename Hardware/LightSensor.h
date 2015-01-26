@@ -37,6 +37,7 @@ class LightSensor  : public Thread{
 private:
 HAL_I2C *i2c;
 uint64_t periode;
+bool active;
 public:
 	LightSensor(const char* name, HAL_I2C *i2c,  uint64_t periode);
 	void init();
@@ -44,6 +45,7 @@ public:
 	uint32_t calculateLux(uint16_t ch0, uint16_t ch1);
 	void turnOn(void);
 	void turnOff(void);
+	bool isOn(void);
 	void setPeriode(uint64_t periode);
 };
 

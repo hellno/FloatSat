@@ -60,6 +60,17 @@ LightSensor::LightSensor(const char* name, HAL_I2C *i2c,  uint64_t periode) : Th
 		this->periode = 100 * MILLISECONDS;
 	else
 		this->periode = periode;
+
+	active = true;
+}
+void LightSensor::turnOn(void){
+	active = true;
+}
+void LightSensor::turnOff(void){
+	active = false;
+}
+bool LightSensor::isOn(void){
+	return active;
 }
 void LightSensor::init(){
 //	xprintf("start lightsensor init\n");
@@ -100,32 +111,33 @@ void LightSensor::run(){
 
 	while(1){
 		suspendCallerUntil(NOW() + periode);
+		if(active){
+			err[0] = i2c->writeRead(SLAVE_ADDRESS, channel0CMD, 1, channel0, 2);
+			err[1] = i2c->writeRead(SLAVE_ADDRESS, channel1CMD, 1, channel1, 2);
 
-		err[0] = i2c->writeRead(SLAVE_ADDRESS, channel0CMD, 1, channel0, 2);
-		err[1] = i2c->writeRead(SLAVE_ADDRESS, channel1CMD, 1, channel1, 2);
+			if(err[1] > 0 && err[0 > 0]){
+				channel0_combined = (channel0[0] << 8) + channel0[1];
+				channel1_combined = (channel1[0] << 8) + channel1[1];
 
-		if(err[1] > 0 && err[0 > 0]){
-			channel0_combined = (channel0[0] << 8) + channel0[1];
-			channel1_combined = (channel1[0] << 8) + channel1[1];
+	//			xprintf("ch0: %d, %d\n",  channel0[0], channel0[1]);
+	//			xprintf("ch1: %d, %d\n",  channel1[0], channel1[1]);
+	//
+	//			xprintf("combined val of ch0: %d\n",  channel0_combined);
+	//			xprintf("combined val of ch1: %d\n", channel1_combined);
 
-//			xprintf("ch0: %d, %d\n",  channel0[0], channel0[1]);
-//			xprintf("ch1: %d, %d\n",  channel1[0], channel1[1]);
-//
-//			xprintf("combined val of ch0: %d\n",  channel0_combined);
-//			xprintf("combined val of ch1: %d\n", channel1_combined);
+				lux =  calculateLux(channel0_combined, channel1_combined);
+				lightTopic.publish(lux);
 
-			lux =  calculateLux(channel0_combined, channel1_combined);
-			lightTopic.publish(lux);
+				if (DBGOUT) xprintf("lux: %d\n", lux);
 
-			if (DBGOUT) xprintf("lux: %d\n", lux);
-
-		}else{
-			if (DBGOUT) {
-//				xprintf("err@reading i2c sun registers\n");
-//				xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
+			}else{
+				if (DBGOUT) {
+	//				xprintf("err@reading i2c sun registers\n");
+	//				xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
+				}
 			}
-		}
 
+		}
 	}
 }
 

@@ -35,7 +35,7 @@ void TM::init(void){
 }
 
 void TM::run(void){
-	CommStruct cs;
+	//CommStruct cs;
 
 	while(1){
 		suspendCallerUntil(NOW() + periode);
@@ -65,24 +65,29 @@ void copyStringToMsg(char* str, CommStruct *cs){
 		*(tmpVal + i) = *(str+i);
 	}
 
-	strncpy(cs->msg, tmpVal, strlen(cs->msg));
+	//OLD strncpy(cs->msg, tmpVal, strlen(cs->msg));
+	strncpy(cs->msg, tmpVal, len);
 }
 
 void raw_vector_to_msg(CommStruct *cs, RawVector3D *a){
 	sprintf(buf, "%d,%d,%d\0", a->x, a->y, a->z);
 
 	size_t len = strlen(buf);
+
 	if(len < 1)
 		return;
 
+
+	/* alternative way of copying string
 	char tmpVal[len];
 	tmpVal[len - 1] = '\0';
 
 	for(uint8_t i = 0; i < len; i++){
 		*(tmpVal + i) = *(buf+i);
 	}
+	*/
 
-	strncpy(cs->msg, tmpVal, strlen(cs->msg));
+	strncpy(cs->msg, buf, len);
 }
 
 
@@ -95,9 +100,9 @@ void TM::sendHousekeepingData(void){
 	//MAGDAT
 	magFifo.get(tempVector);
 	sprintf(cs.param, "%.6s", "MAGDAT");
-	raw_vector_to_string(cs.msg, &tempVector);
-	//xprintf("TMOUT -> p:%s, msg:%s\n", cs.param, cs.msg);
+	raw_vector_to_msg(&cs, &tempVector);
 	tmTopic.publish(cs);
+
 
 	//GYRDAT
 	gyroFifo.get(tempVector);
