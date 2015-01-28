@@ -6,6 +6,7 @@
  */
 
 #include "IMU.h"
+#include "stdlib.h"
 
 Topic<RawVector3D> accTopic(-1, "accelerometer");
 Topic<RawVector3D> magTopic(-1, "magnetometer");
@@ -20,7 +21,8 @@ uint32_t retVal = 0;
 const uint8_t magDataCmd[] = { 0x80 | MAG_X_L };
 const uint8_t tmpDataCmd[] = { 0x80 | TEMP_LOW };
 
-RawVector3D gyroOffset;
+//RawVector3D gyroOffset;
+RawVector3D tempMagDat;
 
 IMU::IMU(const char* name, uint64_t periode) : Thread(name){
 	this->periode = periode;
@@ -131,9 +133,19 @@ void IMU::run(){
 		accRawData.y = acc.getAccY();
 		accRawData.z = acc.getAccZ();
 
-		magRawData.x = acc.getMagX();
-		magRawData.y = acc.getMagY();
-		magRawData.z = acc.getMagZ();
+		tempMagDat.x = acc.getMagX();
+		tempMagDat.y = acc.getMagY();
+		tempMagDat.z = acc.getMagZ();
+
+//		/* mag filter */
+		if(!(abs(magRawData.x - tempMagDat.x) > 42
+			|| abs(magRawData.y - tempMagDat.y) > 42
+			|| abs(magRawData.z - tempMagDat.z) > 42))
+		{
+			magRawData.x = acc.getMagX();
+			magRawData.y = acc.getMagY();
+			magRawData.z = acc.getMagZ();
+		}
 
 		orientation = acc.getOrientation();
 		temp = acc.getTemp();

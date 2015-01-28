@@ -81,7 +81,7 @@ clean:
 	-@echo ' '
 
 post-build:
-	-@echo 'creates TC command list'
+	-@echo 'creating TC command list'
 	-C:\Users\holger\Desktop\FloatSat\SkyNetResponder.exe -f C:\Users\holger\Desktop\FloatSat\Workspace\STM32F4_RODOS_Template\TC.cpp
 	-@echo ' '
 

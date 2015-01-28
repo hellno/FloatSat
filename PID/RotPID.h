@@ -17,12 +17,22 @@ private:
 	float I;
 	float D;
 
+	float P_factor;
+	float I_factor;
+	float D_factor;
+
 	float prevError;
-	int8_t desRot;
+	float output;
+	float integral;
+	float derivative;
+	int16_t desRot;
+
+	RawVector3D tempVal;
 public:
 	RotPID(void);
-	void setDestinationRotation(int8_t rotation);
+	void setDestinationRotation(int8_t rot);
 	void run(void);
+
 	void setP(float p);
 	void setI(float i);
 	void setD(float d);

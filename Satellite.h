@@ -30,6 +30,7 @@ public:
 	void switchMode(void);
 	void handleModePeriodic(void);
 	void setDestinationAngle(uint8_t angle);
+	void setDestinationRotation(int8_t rot);
 	void setAnglePIDConst(PIDConstant select, float val);
 };
 

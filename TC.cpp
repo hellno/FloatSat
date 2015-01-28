@@ -45,66 +45,62 @@ void TC::run(){
 void TC::handlePacket(CommStruct *cs){
 	if (DEBUG) xprintf("TC: param:%s,msg:%s\n", cs->param, cs->msg);
 
-	if (paramIsEqualTo(cs, "MOTSPD")){
+	if (paramIsEqualTo(cs, "MOTSPD")){ // [0,100] set % of motorspeed
 			mt->setMotorSpeed(atoi(cs->msg));
-	} else if (paramIsEqualTo(cs, "SETYAW")) {
+	} else if (paramIsEqualTo(cs, "SETYAW")) { // [0,360] set yaw angle
 		skyNet.setDestinationAngle(atoi(cs->msg));
-
-	} else if (paramIsEqualTo(cs, "SETROT")) {
+	} else if (paramIsEqualTo(cs, "SETROT")) { // TODO! - set rotation speed
 		xprintf("TODO SETROT");
-	} else if(paramIsEqualTo(cs, "IMUPRD")){ // change the IMU refresh period
+		skyNet.setDestinationRotation(atoi(cs->msg));
+	} else if(paramIsEqualTo(cs, "IMUPRD")){ // [ms] change the IMU refresh period
 		imu->setPeriode(atoi(cs->msg) * MILLISECONDS);
-	} else if(paramIsEqualTo(cs, "LGTPRD")){ /* change the LightSensor period */
+	} else if(paramIsEqualTo(cs, "LGTPRD")){ // [ms] change the LightSensor period
 		ls->setPeriode(atoi(cs->msg) * MILLISECONDS);
-	}else if(paramIsEqualTo(cs, "IMUINI")){
+	}else if(paramIsEqualTo(cs, "IMUINI")){ // restart the IMU
 		imu->init();
-	} else if(paramIsEqualTo(cs, "IMUCAL")){
+	} else if(paramIsEqualTo(cs, "IMUCAL")){ //recalibrate the IMU
 		imu->calcBias();
-	} else if(paramIsEqualTo(cs, "MOTINI")){
+	} else if(paramIsEqualTo(cs, "MOTINI")){ // restart the Motor
 		mt->init();
-	} else if(paramIsEqualTo(cs, "LGTSTP")){
+	} else if(paramIsEqualTo(cs, "LGTSTP")){ //stop the LightSensor
 		ls->turnOff();
-		if (DEBUG) xprintf("stopped lightSensor\n");
-	} else if(paramIsEqualTo(cs, "LGTRUN")){
+	} else if(paramIsEqualTo(cs, "LGTRUN")){ //start the LightSensor
 		ls->turnOn();
-		if (DEBUG) xprintf("started lightSensor\n");
-	} else if(paramIsEqualTo(cs, "TMSTOP")){
+	} else if(paramIsEqualTo(cs, "TMSTOP")){ //stop the telemetry
 		tm.turnOff();
-		if (DEBUG) xprintf("stop TM\n");
-	}else if(paramIsEqualTo(cs, "TMSTRT")){
+	}else if(paramIsEqualTo(cs, "TMSTRT")){ // start the telemetry
 		tm.turnOn();
-		if (DEBUG) xprintf("start TM\n");
 	/* DEBUG OUTPUT FLAGS*/
-	}else if (paramIsEqualTo(cs, "DBGOUT")){
+	}else if (paramIsEqualTo(cs, "DBGOUT")){ // 1 -> DBGOUT on, else -> off
 		if(msgIsEqualTo(cs, "1")){
 			DBGOUT = true;
 		}else{
 			DBGOUT = false;
 		}
 		if (DEBUG) xprintf("DBGOUT is %d\n", DBGOUT);
-	} else if(paramIsEqualTo(cs, "DEBUGG")){
+	} else if(paramIsEqualTo(cs, "DEBUGG")){ // 1 -> DEBUG on, else -> off
 		if(msgIsEqualTo(cs, "1")){
 			DEBUG = true;
 		}else{
 			DEBUG = false;
 		}
 	/* SkyNet Modes */
-	} else if(paramIsEqualTo(cs, "STDNBY")){
+	} else if(paramIsEqualTo(cs, "STDNBY")){ // standby mode
 		skyNet.setMode(STDNBY);
-	} else if(paramIsEqualTo(cs, "ROTMOD")){
+	} else if(paramIsEqualTo(cs, "ROTMOD")){ // rotation mode
 		skyNet.setMode(ROTMOD);
-	} else if(paramIsEqualTo(cs, "COMPAS")){
+	} else if(paramIsEqualTo(cs, "COMPAS")){ // compass/pointing mode
 		skyNet.setMode(COMPAS);
-	} else if(paramIsEqualTo(cs, "SUNFIN")){
+	} else if(paramIsEqualTo(cs, "SUNFIN")){ // sunfinding mode
 		skyNet.setMode(SUNFIN);
-	} else if(paramIsEqualTo(cs, "MISION")){
+	} else if(paramIsEqualTo(cs, "MISION")){ // mission mode
 		skyNet.setMode(MISION);
 	/* Angle PID constants */
-	} else if(paramIsEqualTo(cs, "ANGCSP")){
+	} else if(paramIsEqualTo(cs, "ANGCSP")){ // P const of angle PID controller
 		skyNet.setAnglePIDConst(P, atof(cs->msg));
-	} else if(paramIsEqualTo(cs, "ANGCSI")){
+	} else if(paramIsEqualTo(cs, "ANGCSI")){ // I const of angle PID controller
 		skyNet.setAnglePIDConst(I, atof(cs->msg));
-	} else if(paramIsEqualTo(cs, "ANGCSD")){
+	} else if(paramIsEqualTo(cs, "ANGCSD")){ // D const of angle PID controller
 		skyNet.setAnglePIDConst(D, atof(cs->msg));
 	} else {
 		if (DEBUG) xprintf("unknown tc packet received\n");

@@ -25,7 +25,7 @@ void Motor::init(){
 	pwmGPIO.init(false,1,0);
 	enableHBRIDGE.init(true,1,0);
 
-	pwm.init();
+	pwm.init(1000,1000);
 	pwm.write(50);
 }
 
@@ -42,18 +42,19 @@ void Motor::stopMotor(){
 	xprintf("stop motor\n");
 }
 
-void Motor::setSpeed(uint8_t percentage){
-	if(percentage < 0 || percentage > 100)
-		return;
-
-	if(percentage == 0)
+void Motor::setSpeed(uint8_t duty_cycle){
+	if(duty_cycle <= 0)
 		this->stopMotor();
 
 	if(!isRunning)
 		this->startMotor();
 
-	pwm.write(percentage);
-	if(DEBUG) xprintf("set new motor speed to %d%\n", percentage);
+	if(duty_cycle > 1000)
+		duty_cycle = 1000;
+
+
+	pwm.write(duty_cycle);
+	if(DEBUG) xprintf("set new motor speed to %d%\n", duty_cycle);
 }
 
 void Motor::dbgStatus(){

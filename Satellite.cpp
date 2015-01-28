@@ -34,6 +34,11 @@ void Satellite::setDestinationAngle(uint8_t angle){
 	}
 }
 
+void Satellite::setDestinationRotation(int8_t rot){
+	if(mode == ROTMOD){
+		rotPID.setDestinationRotation(rot);
+	}
+}
 void Satellite::run(void){
 	while(1){
 		suspendCallerUntil(NOW() + periode);
@@ -51,6 +56,7 @@ void Satellite::handleModePeriodic(void){
 		break;
 	case COMPAS:
 		anglePID.run();
+		//anglePID.currentOutput() -> motor
 		break;
 	}
 }

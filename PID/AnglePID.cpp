@@ -10,22 +10,22 @@
 Fifo<float, 5> angleFifo;
 Subscriber angleSub(orientationTopic, angleFifo, "orientationSubForAnglePID");
 
-float tempVal;
-
 AnglePID::AnglePID(void){
 	P = 0.0;
 	I = 0.0;
 	D = 0.0;
 
-	P_factor = 0.23;
-	I_factor = 0.0001;
-	D_factor = 1;
+	P_factor = -66.180;
+	I_factor = -0.58;
+	D_factor = 31.172;
 
 	integral = 0.0;
 	derivative = 0.0;
 	prevError = 0.0;
 	desAngle = 0.0;
 	output = 0.0;
+
+	tempVal = 0;
 }
 
 void AnglePID::run(void){
@@ -38,7 +38,6 @@ void AnglePID::run(void){
 	} else if(error < -180){
 		error += 360;
 	}
-
 	if (fabs(error) > PID_ERROR_THRESHOLD) {
 		integral += error;
 	}
@@ -51,20 +50,29 @@ void AnglePID::run(void){
 	output = P + I + D;
 
 	prevError = error;
-	if(DEBUG) xprintf("A_PID: %f (e:%f,desAng:%f,curAng:%f)\n", output, error, desAngle, tempVal);
+
+	if(DEBUG) xprintf("ANG_PID: %.2f (e:%.2f,desAng:%.2f,curAng:%.2f)\n", output, error, desAngle, tempVal);
+}
+
+float AnglePID::currentOutput(void){
+	return output;
 }
 
 void AnglePID::setDestinationAngle(float angle){
 	desAngle = angle;
 
 	if(desAngle < 0){
+
 		while(desAngle < 0){
 			desAngle += 360;
 		}
+
 	} else if(desAngle > 360){
+
 		while(desAngle > 360){
 			desAngle -= 360;
 		}
+
 	}
 	if(DEBUG) xprintf("A_PID new angle: %f\n", desAngle);
 }

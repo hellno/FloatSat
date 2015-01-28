@@ -26,10 +26,14 @@ private:
 	float integral;
 	float derivative;
 	float desAngle;
+
+	float tempVal;
 public:
 	AnglePID(void);
 	void setDestinationAngle(float angle);
 	void run(void);
+	float currentOutput(void);
+
 	void setP(float p);
 	void setI(float i);
 	void setD(float d);

@@ -20,10 +20,11 @@
 static Application module01("FloatSat", 2001);
 
 HAL_UART uart_usb(UART_IDX3);
+HAL_UART bt_usb(UART_IDX2);
 HAL_I2C light_i2c(I2C_IDX3);
 HAL_I2C imuI2C(I2C_IDX2);
 
-CommHandler ch("CommHandler", &uart_usb, 50 * MILLISECONDS);
+CommHandler ch("CommHandler", &bt_usb, 50 * MILLISECONDS);
 
 IMU imu("IMU", 500 * MILLISECONDS);
 LightSensor ls("LightSensor", &light_i2c, STD_PERIOD);
