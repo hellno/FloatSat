@@ -44,10 +44,12 @@ void CommHandler::run(void) {
 
 /*		ECHO	*/
 //			xprintf("--> ECHO p:%.6s m:%s\n", cs.param, cs.msg);
+//			parsePacketToString(buf, &cs, true);
+//			uart->write(buf, 8 + strlen(cs.msg));
 		}
 
 		if(tmFifo.get(cs)) {
-			parsePacketToString(buf, &cs);
+			parsePacketToString(buf, &cs, false);
 //			xprintf("buf: %s\n", buf);
 //			xprintf("len: param: %d, msg: %d\n", strlen(cs.param), strlen(cs.msg));
 			uart->write(buf, 8 + strlen(cs.msg));
@@ -79,9 +81,13 @@ bool CommHandler::parseStringToPacket(char * str, int size, CommStruct* cs) {
 	return true;
 }
 
-void CommHandler::parsePacketToString(char * outStr, CommStruct *cs) {
+void CommHandler::parsePacketToString(char * outStr, CommStruct *cs, bool debug = false) {
 	//sprintf(out, "%.6s%s\0\n", cs->param, cs->msg);
-	sprintf(outStr, "%.6s%s\r\n", cs->param, cs->msg);
+
+	if(debug)
+		sprintf(outStr, "p:%.6s m:%s\r\n", cs->param, cs->msg);
+	else
+		sprintf(outStr, "%.6s%s\r\n", cs->param, cs->msg);
 
 	//DEBUG OUTPUT:
 	//xprintf("CH PARAM:%.6s,MSG:%s\n", cs->param, cs->msg);

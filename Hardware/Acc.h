@@ -48,12 +48,24 @@
 #define WHO_AM_I_ADDRESS 0x0F
 #define ACC_DEVICE_ID 0x49
 
+/* old values
 #define MAG_MAX_X 244
 #define MAG_MAX_Y 627
 #define MAG_MAX_Z 294
 #define MAG_MIN_X -600
 #define MAG_MIN_Y -330
 #define MAG_MIN_Z -657
+*/
+/* new mag values
+min: (-7194|-562|-7053)
+max: (660|6922|-2779)
+*/
+#define MAG_MAX_X 660
+#define MAG_MAX_Y 6922
+#define MAG_MAX_Z 2779
+#define MAG_MIN_X -7194
+#define MAG_MIN_Y -562
+#define MAG_MIN_Z -7053
 
 extern HAL_I2C imuI2C;
 

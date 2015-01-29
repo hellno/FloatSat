@@ -11,16 +11,18 @@
 
 Fifo<CommStruct, 5> tcBuffer;
 
-bool DEBUG = true;
+bool DEBUG = false;
 bool DBGOUT = false;
 
 extern TM tm;
 extern Satellite skyNet;
+extern bool CALIB_MODE;
 
-TC::TC(const char* name, IMU *imu, LightSensor *ls, MotorThread *mt) : Subscriber(tcTopic, name){
+TC::TC(const char* name, IMU *imu, LightSensor *ls, MotorThread *mt, Camera *camera) : Subscriber(tcTopic, name){
 	this->imu = imu;
 	this->ls = ls;
 	this->mt = mt;
+	this->camera = camera;
 }
 
 long TC::put(const long topicId, const long len, const void* data, const NetMsgInfo& netMsgInfo) {
@@ -97,11 +99,24 @@ void TC::handlePacket(CommStruct *cs){
 		skyNet.setMode(MISION);
 	/* Angle PID constants */
 	} else if(paramIsEqualTo(cs, "ANGCSP")){ // P const of angle PID controller
-		skyNet.setAnglePIDConst(P, atof(cs->msg));
+			skyNet.setAnglePIDConst(P, atof(cs->msg));
 	} else if(paramIsEqualTo(cs, "ANGCSI")){ // I const of angle PID controller
 		skyNet.setAnglePIDConst(I, atof(cs->msg));
 	} else if(paramIsEqualTo(cs, "ANGCSD")){ // D const of angle PID controller
 		skyNet.setAnglePIDConst(D, atof(cs->msg));
+	/* Rotation PID constants */
+	} else if(paramIsEqualTo(cs, "ANGCSP")){ // P const of rot PID controller
+		skyNet.setRotPIDConst(P, atof(cs->msg));
+	} else if(paramIsEqualTo(cs, "ANGCSI")){ // I const of rot PID controller
+		skyNet.setRotPIDConst(I, atof(cs->msg));
+	} else if(paramIsEqualTo(cs, "ANGCSD")){ // D const of rot PID controller
+		skyNet.setRotPIDConst(D, atof(cs->msg));
+	} else if(paramIsEqualTo(cs, "CALIBM")){ //[0,1] de/activate output of mag. calib values
+		if(msgIsEqualTo(cs, "1")){
+			imu->setMagCalibMode(true);
+		}else{
+			imu->setMagCalibMode(false);
+		}
 	} else {
 		if (DEBUG) xprintf("unknown tc packet received\n");
 	}

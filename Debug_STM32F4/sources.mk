@@ -31,4 +31,8 @@ tst \
 . \
 PID \
 Hardware \
+Camera/Peripheral \
+Camera/Peripheral/Misc \
+Camera/IRQHandler \
+Camera \
 

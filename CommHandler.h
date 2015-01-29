@@ -24,7 +24,7 @@ public:
 	void init();
 	void run();
 	bool parseStringToPacket(char * str, int size, CommStruct* cs);
-	void parsePacketToString(char * out, CommStruct *cs);
+	void parsePacketToString(char * outStr, CommStruct *cs, bool debug);
 };
 
 #endif /* SKYNET_COMMHANDLER_H_ */

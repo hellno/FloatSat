@@ -27,6 +27,8 @@ private:
 	Gyro gyro;
 	Acc acc;
 
+	bool magCalibIsActive;
+
 	void writeDataToVector(float *data, Vector3D *vector);
 	bool writeReadCheck(uint8_t slave_address, uint8_t address, uint8_t cmd);
 	bool readCheck(uint8_t slave_address, uint8_t address, uint8_t targetValue);
@@ -37,6 +39,7 @@ public:
 	void run();
 	void setPeriode(uint64_t periode);
 	void calcBias(void);
+	void setMagCalibMode(bool active);
 };
 
 #endif /* IMU_H_ */

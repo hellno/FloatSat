@@ -8,9 +8,11 @@
 #include "Satellite.h"
 #include "TC.h"
 #include "TM.h"
+#include "Camera/Camera.h"
 
 extern TC tc;
 extern TM tm;
+extern Camera camera;
 
 Satellite::Satellite(const char* name, uint64_t periode) : Thread(name){
 	if(periode < 100 * MILLISECONDS)
@@ -50,13 +52,17 @@ void Satellite::run(void){
 void Satellite::handleModePeriodic(void){
 	switch(mode){
 	case STDNBY:
-		return;
+		break;
 	case ROTMOD:
 		rotPID.run();
+		//rotPID.currentOutput() -> motor
 		break;
 	case COMPAS:
 		anglePID.run();
 		//anglePID.currentOutput() -> motor
+		break;
+	case MISION:
+		camera.turnOn();
 		break;
 	}
 }
@@ -110,6 +116,22 @@ void Satellite::setAnglePIDConst(PIDConstant select, float val){
 			break;
 	case(D):
 			anglePID.setD(val);
+			break;
+	default:
+		return;
+	}
+}
+
+void Satellite::setRotPIDConst(PIDConstant select, float val){
+	switch(select){
+	case(P):
+			rotPID.setP(val);
+			break;
+	case(I):
+			rotPID.setI(val);
+			break;
+	case(D):
+			rotPID.setD(val);
 			break;
 	default:
 		return;

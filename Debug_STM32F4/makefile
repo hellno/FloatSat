@@ -11,6 +11,10 @@ RM := rm -rf
 -include tst/subdir.mk
 -include PID/subdir.mk
 -include Hardware/subdir.mk
+-include Camera/Peripheral/Misc/subdir.mk
+-include Camera/Peripheral/subdir.mk
+-include Camera/IRQHandler/subdir.mk
+-include Camera/subdir.mk
 -include subdir.mk
 -include objects.mk
 

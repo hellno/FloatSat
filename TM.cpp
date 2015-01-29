@@ -97,17 +97,24 @@ void TM::sendHousekeepingData(void){
 	uint32_t tempInt;
 	float tempFloat;
 
-	//MAGDAT
-	magFifo.get(tempVector);
-	sprintf(cs.param, "%.6s", "MAGDAT");
-	raw_vector_to_msg(&cs, &tempVector);
-	tmTopic.publish(cs);
-
+	/*
 
 	//GYRDAT
 	gyroFifo.get(tempVector);
 	sprintf(cs.param, "%.6s", "GYRDAT");
 	raw_vector_to_string(cs.msg, &tempVector);
+	tmTopic.publish(cs);
+
+	//LGHTSN
+	lightFifo.get(tempInt);
+	sprintf(cs.param, "%.6s", "LGHTSN");
+	sprintf(cs.msg, "%.2f", tempInt);
+	tmTopic.publish(cs);
+	*/
+	//MAGDAT
+	magFifo.get(tempVector);
+	sprintf(cs.param, "%.6s", "MAGDAT");
+	raw_vector_to_msg(&cs, &tempVector);
 	tmTopic.publish(cs);
 
 	//ACCDAT
@@ -120,12 +127,6 @@ void TM::sendHousekeepingData(void){
 	orientationFifo.get(tempFloat);
 	sprintf(cs.param, "%.6s", "ORIENT");
 	sprintf(cs.msg, "%.2f", tempFloat);
-	tmTopic.publish(cs);
-
-	//LGHTSN
-	lightFifo.get(tempInt);
-	sprintf(cs.param, "%.6s", "LGHTSN");
-	sprintf(cs.msg, "%.2f", tempInt);
 	tmTopic.publish(cs);
 }
 

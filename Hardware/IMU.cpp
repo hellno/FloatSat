@@ -8,6 +8,9 @@
 #include "IMU.h"
 #include "stdlib.h"
 
+RawVector3D minimum = { 32767, 32767, 32767 };
+RawVector3D maximum = { -32767, -32767, -32767 };
+
 Topic<RawVector3D> accTopic(-1, "accelerometer");
 Topic<RawVector3D> magTopic(-1, "magnetometer");
 Topic<RawVector3D> gyroTopic(-1, "gyro");
@@ -24,8 +27,25 @@ const uint8_t tmpDataCmd[] = { 0x80 | TEMP_LOW };
 //RawVector3D gyroOffset;
 RawVector3D tempMagDat;
 
+int16_t min(int16_t a, int16_t b){
+	if(a > b)
+		return b;
+	return a;
+}
+
+int16_t max(int16_t a, int16_t b){
+	if(a > b)
+		return a;
+	return b;
+}
+
 IMU::IMU(const char* name, uint64_t periode) : Thread(name){
 	this->periode = periode;
+	this->magCalibIsActive = false;
+}
+
+void IMU::setMagCalibMode(bool active){
+	magCalibIsActive = active;
 }
 
 void IMU::init(){
@@ -137,10 +157,26 @@ void IMU::run(){
 		tempMagDat.y = acc.getMagY();
 		tempMagDat.z = acc.getMagZ();
 
+		if(magCalibIsActive){
+
+			minimum.x = min(tempMagDat.x, minimum.x);
+			minimum.y = min(tempMagDat.y, minimum.y);
+			minimum.z = min(tempMagDat.z, minimum.z);
+
+			maximum.x = max(tempMagDat.x, maximum.x);
+			maximum.y = max(tempMagDat.y, maximum.y);
+			maximum.z = max(tempMagDat.z, maximum.z);
+
+
+			xprintf("min: (%d|%d|%d)\n", minimum.x, minimum.y, minimum.z);
+			xprintf("max: (%d|%d|%d)\n", maximum.x, maximum.y, maximum.z);
+		}
+
+
 //		/* mag filter */
-		if(!(abs(magRawData.x - tempMagDat.x) > 42
-			|| abs(magRawData.y - tempMagDat.y) > 42
-			|| abs(magRawData.z - tempMagDat.z) > 42))
+		if(!(abs(magRawData.x - tempMagDat.x) > 30
+			|| abs(magRawData.y - tempMagDat.y) > 30
+			|| abs(magRawData.z - tempMagDat.z) > 30))
 		{
 			magRawData.x = acc.getMagX();
 			magRawData.y = acc.getMagY();
