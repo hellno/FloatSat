@@ -75,6 +75,8 @@ enum SkyNetTopicID{
 	TelecommandoTopicID = 23456,
 	UserButtonTopicID = 34567,
 };
+//Hardware
+extern Topic<uint16_t> motorSpeedTopic;
 
 //TM
 extern Topic<CommStruct> tmTopic;
@@ -85,6 +87,7 @@ extern Topic<RawVector3D> accTopic;
 extern Topic<RawVector3D> magTopic;
 extern Topic<float> tempTopic;
 extern Topic<float> orientationTopic;
+
 //TC
 extern Topic<CommStruct> tcTopic;
 

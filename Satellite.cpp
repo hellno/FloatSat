@@ -9,16 +9,15 @@
 #include "TC.h"
 #include "TM.h"
 #include "Camera/Camera.h"
+#include "Hardware/Motor.h"
 
 extern TC tc;
 extern TM tm;
 extern Camera camera;
+extern Motor mt;
 
 Satellite::Satellite(const char* name, uint64_t periode) : Thread(name){
-	if(periode < 100 * MILLISECONDS)
-		this->periode = 100 * MILLISECONDS;
-	else
-		this->periode = periode;
+	this->periode = periode;
 
 	mode = STDNBY;
 
@@ -42,6 +41,7 @@ void Satellite::setDestinationRotation(int8_t rot){
 	}
 }
 void Satellite::run(void){
+
 	while(1){
 		suspendCallerUntil(NOW() + periode);
 
@@ -55,14 +55,16 @@ void Satellite::handleModePeriodic(void){
 		break;
 	case ROTMOD:
 		rotPID.run();
-		//rotPID.currentOutput() -> motor
+		tempValue = rotPID.currentOutput();
+		motorSpeedTopic.publish(tempValue);
 		break;
 	case COMPAS:
 		anglePID.run();
-		//anglePID.currentOutput() -> motor
+		tempValue = anglePID.currentOutput();
+		motorSpeedTopic.publish(tempValue);
 		break;
 	case MISION:
-		camera.turnOn();
+
 		break;
 	}
 }
@@ -73,6 +75,7 @@ void Satellite::setPeriode(uint64_t periode){
 }
 
 void Satellite::setMode(SkyNetMode newMode){
+
 	if(newMode == mode){
 		return;
 	}
@@ -81,9 +84,17 @@ void Satellite::setMode(SkyNetMode newMode){
 	switchMode();
 
 }
+
+void Satellite::sendPicture(void){
+	if(mode == MISION){
+		camera.sendPicture();
+	}
+}
 void Satellite::switchMode(void){
 	switch(mode){
 	case STDNBY:
+		tm.turnOn();
+		camera.turnOff();
 
 		break;
 	case ROTMOD:
@@ -96,12 +107,13 @@ void Satellite::switchMode(void){
 
 		break;
 	case MISION:
-
+		tm.turnOff();
+		camera.turnOn();
 		break;
 	}
-	if(DEBUG) xprintf("switched to mode %d\n", mode);
-
+	xprintf("switched to mode %d\n", mode);
 }
+
 SkyNetMode Satellite::getCurrentMode(void){
 	return mode;
 }

@@ -59,23 +59,25 @@ void CommHandler::run(void) {
 }
 
 bool CommHandler::parseStringToPacket(char * str, int size, CommStruct* cs) {
-	if (size < 7 && strlen(str) < 7)
-		return false;
+//	if (size < 7 && strlen(str) < 7)
+//		return false;
 
 	size_t len = strlen(str) - 6;
 
-//	xprintf("msg-len: %d\n", len);
-
 	sprintf(cs->param, "%.6s\0", str);
+
+	//xprintf("msg-len: %d\n", len);
 
 	if(len > 0){
 		char tmpVal[len];
+		//tmpVal[len - 1] = '\0';
 
 		for(uint8_t i = 0; i < len; i++){
 			*(tmpVal + i) = *(str + 6 + i);
 		}
 
-		sprintf(cs->msg, "%s\0", tmpVal);
+		sprintf(cs->msg, "%s", tmpVal);
+		//xprintf("msg in ch: %s\n", cs->msg);
 	}
 
 	return true;

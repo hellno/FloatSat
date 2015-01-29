@@ -9,7 +9,7 @@
 #include "stdlib.h"
 
 
-Fifo<CommStruct, 5> tcBuffer;
+Fifo<CommStruct, 25> tcBuffer;
 
 bool DEBUG = false;
 bool DBGOUT = false;
@@ -45,14 +45,17 @@ void TC::run(){
 }
 
 void TC::handlePacket(CommStruct *cs){
-	if (DEBUG) xprintf("TC: param:%s,msg:%s\n", cs->param, cs->msg);
-
+	if(DEBUG){
+		xprintf("TC: param:%s,msg:%s(dbg=%d)\n", cs->param, cs->msg, DEBUG);
+		xprintf("len: p%d,m%d\n", strlen(cs->param), strlen(cs->msg));
+	}
 	if (paramIsEqualTo(cs, "MOTSPD")){ // [0,100] set % of motorspeed
 			mt->setMotorSpeed(atoi(cs->msg));
+	} else if (paramIsEqualTo(cs, "ECHOHO")) { // echo test
+		xprintf("ECHOHO(DBG)\n");
 	} else if (paramIsEqualTo(cs, "SETYAW")) { // [0,360] set yaw angle
 		skyNet.setDestinationAngle(atoi(cs->msg));
 	} else if (paramIsEqualTo(cs, "SETROT")) { // TODO! - set rotation speed
-		xprintf("TODO SETROT");
 		skyNet.setDestinationRotation(atoi(cs->msg));
 	} else if(paramIsEqualTo(cs, "IMUPRD")){ // [ms] change the IMU refresh period
 		imu->setPeriode(atoi(cs->msg) * MILLISECONDS);
@@ -79,7 +82,6 @@ void TC::handlePacket(CommStruct *cs){
 		}else{
 			DBGOUT = false;
 		}
-		if (DEBUG) xprintf("DBGOUT is %d\n", DBGOUT);
 	} else if(paramIsEqualTo(cs, "DEBUGG")){ // 1 -> DEBUG on, else -> off
 		if(msgIsEqualTo(cs, "1")){
 			DEBUG = true;
@@ -111,6 +113,8 @@ void TC::handlePacket(CommStruct *cs){
 		skyNet.setRotPIDConst(I, atof(cs->msg));
 	} else if(paramIsEqualTo(cs, "ANGCSD")){ // D const of rot PID controller
 		skyNet.setRotPIDConst(D, atof(cs->msg));
+	} else if(paramIsEqualTo(cs, "SNDPIC")){ // send captured picture
+		skyNet.sendPicture();
 	} else if(paramIsEqualTo(cs, "CALIBM")){ //[0,1] de/activate output of mag. calib values
 		if(msgIsEqualTo(cs, "1")){
 			imu->setMagCalibMode(true);

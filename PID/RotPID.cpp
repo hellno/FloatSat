@@ -78,3 +78,7 @@ float RotPID::getI(void){
 float RotPID::getD(void){
 	return D;
 }
+
+uint16_t RotPID::currentOutput(void){
+	return (uint16_t) output;
+}

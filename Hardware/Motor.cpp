@@ -42,7 +42,7 @@ void Motor::stopMotor(){
 	xprintf("stop motor\n");
 }
 
-void Motor::setSpeed(uint8_t duty_cycle){
+void Motor::setSpeed(uint16_t duty_cycle){
 	if(duty_cycle <= 0)
 		this->stopMotor();
 

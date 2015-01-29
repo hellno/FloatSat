@@ -20,6 +20,8 @@ private:
 
 	AnglePID anglePID;
 	RotPID rotPID;
+
+	uint16_t tempValue;
 public:
 	Satellite(const char* name, uint64_t periode);
 	void init(void);
@@ -33,6 +35,7 @@ public:
 	void setDestinationRotation(int8_t rot);
 	void setAnglePIDConst(PIDConstant select, float val);
 	void setRotPIDConst(PIDConstant select, float val);
+	void sendPicture(void);
 };
 
 #endif /* SKYNET_SATELLITE_H_ */

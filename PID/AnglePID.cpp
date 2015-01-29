@@ -51,11 +51,11 @@ void AnglePID::run(void){
 
 	prevError = error;
 
-	if(DEBUG) xprintf("ANG_PID: %.2f (e:%.2f,desAng:%.2f,curAng:%.2f)\n", output, error, desAngle, tempVal);
+	xprintf("ANG_PID: %.2f (e:%.2f,desAng:%.2f,curAng:%.2f)\n", output, error, desAngle, tempVal);
 }
 
-float AnglePID::currentOutput(void){
-	return output;
+uint16_t AnglePID::currentOutput(void){
+	return (uint16_t) output;
 }
 
 void AnglePID::setDestinationAngle(float angle){
@@ -74,7 +74,7 @@ void AnglePID::setDestinationAngle(float angle){
 		}
 
 	}
-	if(DEBUG) xprintf("A_PID new angle: %f\n", desAngle);
+	xprintf("A_PID new angle: %f(param=%f)\n", desAngle, angle);
 }
 
 void AnglePID::setP(float p){

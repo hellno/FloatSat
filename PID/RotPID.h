@@ -32,6 +32,7 @@ public:
 	RotPID(void);
 	void setDestinationRotation(int8_t rot);
 	void run(void);
+	uint16_t currentOutput(void);
 
 	void setP(float p);
 	void setI(float i);
