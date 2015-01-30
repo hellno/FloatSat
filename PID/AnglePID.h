@@ -27,12 +27,15 @@ private:
 	float derivative;
 	float desAngle;
 
+	float period;
+
 	float tempVal;
 public:
 	AnglePID(void);
 	void setDestinationAngle(float angle);
 	void run(void);
 	uint16_t currentOutput(void);
+	void setPeriod(float seconds);
 
 	void setP(float p);
 	void setI(float i);

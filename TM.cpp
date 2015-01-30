@@ -7,14 +7,16 @@
 
 #include "TM.h"
 
-#define FIFO_SIZE 5
+#define FIFO_SIZE 3
 
 Fifo<uint32_t, FIFO_SIZE> lightFifo;
-Fifo<RawVector3D, FIFO_SIZE> gyroFifo;
+Fifo<Vector3D, FIFO_SIZE> gyroFifo;
 Fifo<RawVector3D, FIFO_SIZE> accFifo;
 Fifo<RawVector3D, FIFO_SIZE> magFifo;
 Fifo<float, FIFO_SIZE> tempFifo;
 Fifo<float, FIFO_SIZE> orientationFifo;
+Fifo<float, FIFO_SIZE> yawAngleFifo;
+Fifo<RawVector2D, FIFO_SIZE> cameraTargetFifo;
 
 Subscriber lightSubscriber(lightTopic, lightFifo, "lightSub");
 Subscriber gyroSubscriber(gyroTopic, gyroFifo, "gyroSub");
@@ -22,6 +24,8 @@ Subscriber accSubscriber(accTopic, accFifo, "accSub");
 Subscriber magSubscriber(magTopic, magFifo, "magSub");
 Subscriber tempSubscriber(tempTopic, tempFifo, "tempSub");
 Subscriber orientationSubscriber(orientationTopic, orientationFifo, "orientationSub");
+Subscriber yawAngleSubscriber(yawAngTopic, yawAngleFifo, "yawAngleSub");
+Subscriber cameraTargetSubscriber(cameraTargetTopic, cameraTargetFifo, "cameraTargetSub");
 
 char buf[BUFFER_SIZE];
 
@@ -51,6 +55,10 @@ void vector_to_string(char* str, Vector3D *a){
 
 void raw_vector_to_string(char* str, RawVector3D *a){
 	sprintf(str, "%d,%d,%d", a->x, a->y, a->z);
+}
+
+void raw_vector_to_string(char* str, RawVector2D *a){
+	sprintf(str, "%d,%d", a->x, a->y);
 }
 
 void copyStringToMsg(char* str, CommStruct *cs){
@@ -93,41 +101,60 @@ void raw_vector_to_msg(CommStruct *cs, RawVector3D *a){
 
 void TM::sendHousekeepingData(void){
 	CommStruct cs;
-	RawVector3D tempVector;
+	RawVector3D tempRawVector;
+	Vector3D tempVector;
+	RawVector2D tempVector2D;
 	uint32_t tempInt;
 	float tempFloat;
 
 	/*
-
-	//GYRDAT
-	gyroFifo.get(tempVector);
-	sprintf(cs.param, "%.6s", "GYRDAT");
-	raw_vector_to_string(cs.msg, &tempVector);
-	tmTopic.publish(cs);
-
 	//LGHTSN
 	lightFifo.get(tempInt);
 	sprintf(cs.param, "%.6s", "LGHTSN");
 	sprintf(cs.msg, "%.2f", tempInt);
 	tmTopic.publish(cs);
-	*/
+
 	//MAGDAT
-	magFifo.get(tempVector);
+	magFifo.get(tempRawVector);
 	sprintf(cs.param, "%.6s", "MAGDAT");
 	raw_vector_to_msg(&cs, &tempVector);
 	tmTopic.publish(cs);
 
 	//ACCDAT
-	accFifo.get(tempVector);
+	accFifo.get(tempRawVector);
 	sprintf(cs.param, "%.6s", "ACCDAT");
 	raw_vector_to_string(cs.msg, &tempVector);
 	tmTopic.publish(cs);
 
+
+	//GYRDAT
+	if(gyroFifo.get(tempVector)){
+		sprintf(cs.param, "%.6s", "GYRDAT");
+		vector_to_string(cs.msg, &tempVector);
+		tmTopic.publish(cs);
+	}
+	*/
+
+	//YAWANG
+	if(yawAngleFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "YAWANG");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
+
 	//ORIENT
-	orientationFifo.get(tempFloat);
-	sprintf(cs.param, "%.6s", "ORIENT");
-	sprintf(cs.msg, "%.2f", tempFloat);
-	tmTopic.publish(cs);
+	if(orientationFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "ORIENT");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
+
+	//TARGET
+	if(cameraTargetFifo.get(tempVector2D)){
+		sprintf(cs.param, "%.6s", "TARGET");
+		raw_vector_to_string(cs.msg, &tempVector2D);
+		tmTopic.publish(cs);
+	}
 }
 
 void TM::setPeriode(uint64_t periode){

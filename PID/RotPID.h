@@ -27,12 +27,15 @@ private:
 	float derivative;
 	int16_t desRot;
 
-	RawVector3D tempVal;
+	float period;
+
+	Vector3D tempVal;
 public:
 	RotPID(void);
 	void setDestinationRotation(int8_t rot);
 	void run(void);
 	uint16_t currentOutput(void);
+	void setPeriod(float seconds);
 
 	void setP(float p);
 	void setI(float i);

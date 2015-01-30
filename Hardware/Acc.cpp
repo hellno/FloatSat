@@ -80,6 +80,7 @@ void Acc::read(void){
 	err[0] = imuI2C.writeRead(ACC_SLAVE_ADDRESS, txBuf, 1, rxBuf, 6);
 	if (err[0] < 0) {
 		xprintf("## error while reading acc data//init IMU ##\n\n");
+		imuI2C.init();
 		memset(rxBuf, 0, sizeof(rxBuf));
 	}
 	accX = (int16_t) ((rxBuf[1] << 8) | rxBuf[0] - accXBias);
@@ -92,6 +93,7 @@ void Acc::read(void){
 	err[0] = imuI2C.writeRead(ACC_SLAVE_ADDRESS, txBuf, 1, rxBuf, 6);
 	if (err[0] < 0) {
 		xprintf("## error while reading mag data//init IMU ##\n\n");
+		imuI2C.init();
 		memset(rxBuf, 0, sizeof(rxBuf));
 	}
 	magX = (int16_t) ((rxBuf[1] << 8) | rxBuf[0] - magXBias);

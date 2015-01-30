@@ -11,12 +11,11 @@
 
 Fifo<CommStruct, 25> tcBuffer;
 
-bool DEBUG = false;
+bool DEBUG = true;
 bool DBGOUT = false;
 
 extern TM tm;
 extern Satellite skyNet;
-extern bool CALIB_MODE;
 
 TC::TC(const char* name, IMU *imu, LightSensor *ls, MotorThread *mt, Camera *camera) : Subscriber(tcTopic, name){
 	this->imu = imu;
@@ -49,6 +48,7 @@ void TC::handlePacket(CommStruct *cs){
 		xprintf("TC: param:%s,msg:%s(dbg=%d)\n", cs->param, cs->msg, DEBUG);
 		xprintf("len: p%d,m%d\n", strlen(cs->param), strlen(cs->msg));
 	}
+
 	if (paramIsEqualTo(cs, "MOTSPD")){ // [0,100] set % of motorspeed
 			mt->setMotorSpeed(atoi(cs->msg));
 	} else if (paramIsEqualTo(cs, "ECHOHO")) { // echo test
@@ -107,13 +107,17 @@ void TC::handlePacket(CommStruct *cs){
 	} else if(paramIsEqualTo(cs, "ANGCSD")){ // D const of angle PID controller
 		skyNet.setAnglePIDConst(D, atof(cs->msg));
 	/* Rotation PID constants */
-	} else if(paramIsEqualTo(cs, "ANGCSP")){ // P const of rot PID controller
+	} else if(paramIsEqualTo(cs, "ROTCSP")){ // P const of rot PID controller
 		skyNet.setRotPIDConst(P, atof(cs->msg));
-	} else if(paramIsEqualTo(cs, "ANGCSI")){ // I const of rot PID controller
+	} else if(paramIsEqualTo(cs, "ROTCSI")){ // I const of rot PID controller
 		skyNet.setRotPIDConst(I, atof(cs->msg));
-	} else if(paramIsEqualTo(cs, "ANGCSD")){ // D const of rot PID controller
+	} else if(paramIsEqualTo(cs, "ROTCSD")){ // D const of rot PID controller
 		skyNet.setRotPIDConst(D, atof(cs->msg));
-	} else if(paramIsEqualTo(cs, "SNDPIC")){ // send captured picture
+	} else if(paramIsEqualTo(cs, "CAPPIC")){ // CAM1: capture picture
+		skyNet.capturePicture();
+	} else if(paramIsEqualTo(cs, "DETECT")){ // CAM2: detect target
+			skyNet.camDetect();
+	} else if(paramIsEqualTo(cs, "SNDPIC")){ // CAM3: send picture
 		skyNet.sendPicture();
 	} else if(paramIsEqualTo(cs, "CALIBM")){ //[0,1] de/activate output of mag. calib values
 		if(msgIsEqualTo(cs, "1")){

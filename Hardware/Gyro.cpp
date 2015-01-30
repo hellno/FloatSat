@@ -52,7 +52,7 @@ void Gyro::init(void) {
 	I2_EMPTY - FIFO empty interrupt on DRDY_G (0=disable 1=enable)
 	Int1 enabled (pp, active low), data read on DRDY_G:*/
 	txBuf[0] = CTRL_REG3_G;
-	txBuf[1] = 0x88;
+	txBuf[1] = 0x00; //old: 0x88;
 	if (imuI2C.write(GYRO_SLAVE_ADDRESS, txBuf, 2) < 0)
 		imuI2C.init();
 	/* CTRL_REG4_G sets the scale, update mode
@@ -96,6 +96,7 @@ uint8_t Gyro::getModel(void) {
 	err[0] = imuI2C.writeRead(GYRO_SLAVE_ADDRESS, txBuf, 1, rxBuf, 1);
 	if (err[0] < 0) {
 		xprintf("Init I2C and all slaves ...\n\n");
+		imuI2C.init();
 		return false;
 	}
 
@@ -104,7 +105,7 @@ uint8_t Gyro::getModel(void) {
 
 void Gyro::stop(void) {
 	if (isOn & gpioGyro.read() == 1) {
-	gpioGyro.init(false, 1, 1);
+		gpioGyro.init(false, 1, 1);
 	}
 	isOn = false;
 }
@@ -122,6 +123,7 @@ void Gyro::read(void) {
 	err[0] = imuI2C.writeRead(GYRO_SLAVE_ADDRESS, txBuf, 1, rxBuf, 6);
 	if (err[0] < 0) {
 		xprintf("## error while reading gyro data//init IMU ##\n\n");
+		imuI2C.init();
 		memset(rxBuf, 0, sizeof(rxBuf));
 	}
 	x = (rxBuf[1] << 8) | rxBuf[0] - xBias;
@@ -131,14 +133,18 @@ void Gyro::read(void) {
 	//xprintf("gyro data: [%d|%d|%d]\n", gx, gy, gz);
 }
 
-int16_t Gyro::getX(void){
-	return (x - dps2000Bias) * scale - xBias;
+float Gyro::getX(void){
+	return (float)((x * scale) - xBias);
 }
-int16_t Gyro::getY(void){
-	return (y - dps2000Bias) * scale - yBias;
+float Gyro::getY(void){
+	return (float)((y * scale) - yBias);
 }
-int16_t Gyro::getZ(void){
-	return (z - dps2000Bias) * scale - zBias;
+float Gyro::getZ(void){
+	return (float)((z * scale) - zBias);
+}
+
+int16_t Gyro::getZWithoutBias(void){
+	return z * scale;
 }
 
 int16_t Gyro::getXBias(void){

@@ -81,13 +81,15 @@ public:
 	uint8_t readNumberOfSamples(void);
 	uint8_t getModel(void);
 
-	int16_t getX(void);
-	int16_t getY(void);
-	int16_t getZ(void);
+	float getX(void);
+	float getY(void);
+	float getZ(void);
 
 	int16_t getXBias(void);
 	int16_t getYBias(void);
 	int16_t getZBias(void);
+
+	int16_t getZWithoutBias(void);
 };
 
 #endif /* GYRO_H_ */

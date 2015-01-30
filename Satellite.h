@@ -36,6 +36,8 @@ public:
 	void setAnglePIDConst(PIDConstant select, float val);
 	void setRotPIDConst(PIDConstant select, float val);
 	void sendPicture(void);
+	void camDetect(void);
+	void capturePicture(void);
 };
 
 #endif /* SKYNET_SATELLITE_H_ */

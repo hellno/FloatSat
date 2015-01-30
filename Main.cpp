@@ -25,15 +25,15 @@ HAL_UART bt_usb(UART_IDX2);
 HAL_I2C light_i2c(I2C_IDX1);
 HAL_I2C imuI2C(I2C_IDX2);
 
-CommHandler ch("CommHandler", &uart_usb, 50 * MILLISECONDS);
+CommHandler ch("CommHandler", &bt_usb, 20 * MILLISECONDS);
 
-IMU imu("IMU", 500 * MILLISECONDS);
+IMU imu("IMU", 100 * MILLISECONDS);
 LightSensor ls("LightSensor", &light_i2c, STD_PERIOD);
 MotorThread mt("motorThread");
 
 Camera camera("Camera");
 
-TM tm("tmHandler", 1 * SECONDS);
+TM tm("tmHandler", 20 * MILLISECONDS);
 TC tc("tcHandler", &imu, &ls, &mt, &camera);
 
 Satellite skyNet("SkyNet", 50 * MILLISECONDS);

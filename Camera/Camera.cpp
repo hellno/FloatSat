@@ -8,6 +8,8 @@
 
 #include "Camera.h"
 
+Topic<RawVector2D> cameraTargetTopic(-1, "camera target");
+
 Camera::Camera(const char* name) :
 		Thread(name),
 		dcmi(IMAGESIZE, (uint32_t) DCMI_Buffer, FRAMERATE, CAPTUREMODE),
@@ -72,8 +74,8 @@ void Camera::init() {
 
 void Camera::sendPicture() {
 	xprintf("F");
-	xprintf("%d;", targetX);
-	xprintf("%d;", targetY);
+	xprintf("%d;", target.x);
+	xprintf("%d;", target.y);
 	for (int i = 0; i < IMAGESIZE; i += 2) {
 		xprintf("%u;", DCMI_Buffer[i]);
 	}
@@ -145,8 +147,12 @@ void Camera::DetectSatellite() {
 		meanHeight++;
 	}
 
-	targetX = meanWidth;
-	targetY = meanHeight;
+//	targetX = meanWidth;
+//	targetY = meanHeight;
+
+	target.x = meanWidth;
+	target.y = meanHeight;
+	cameraTargetTopic.publish(target);
 	// -----------------------*/
 }
 
@@ -155,26 +161,26 @@ void Camera::run() {
 	while (1) {
 		if(active){
 			suspendCallerUntil(NOW()+2000*MILLISECONDS);
-			if (ledg.readPins() == 0) {
-				ledg.setPins(1);
-				xprintf("capture\n");
-				Capture();
-				xprintf("sending\n");
-			} else {
-
-				// Test Case: Send Pic when target detected, reset target afterwards!
-				//DetectSatellite();
-				sendPicture();
-
-	//			if((targetX>0)&&(targetY>0)){
-	//				sendPicture();
-	//				targetX = 0;
-	//				targetY = 0;
-	//			}
-
-
-				ledg.setPins(0);
-			}
+//			if (ledg.readPins() == 0) {
+//				ledg.setPins(1);
+//				xprintf("capture\n");
+//				Capture();
+//				xprintf("sending\n");
+//			} else {
+//
+//				// Test Case: Send Pic when target detected, reset target afterwards!
+//				//DetectSatellite();
+//				sendPicture();
+//
+//			if((targetX>0)&&(targetY>0)){
+//				sendPicture();
+//				targetX = 0;
+//				targetY = 0;
+//			}
+//
+//
+//				ledg.setPins(0);
+//			}
 		}
 	}
 

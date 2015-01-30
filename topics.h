@@ -26,6 +26,11 @@ struct CommStruct{
 	char param[7];
 	char msg[64];
 };
+
+struct RawVector2D{
+	int16_t x;
+	int16_t y;
+};
 struct RawVector3D{
 	int16_t x;
 	int16_t y;
@@ -82,11 +87,13 @@ extern Topic<uint16_t> motorSpeedTopic;
 extern Topic<CommStruct> tmTopic;
 
 extern Topic<uint32_t> lightTopic;
-extern Topic<RawVector3D> gyroTopic;
+extern Topic<Vector3D> gyroTopic;
 extern Topic<RawVector3D> accTopic;
 extern Topic<RawVector3D> magTopic;
 extern Topic<float> tempTopic;
 extern Topic<float> orientationTopic;
+extern Topic<float> yawAngTopic;
+extern Topic<RawVector2D> cameraTargetTopic;
 
 //TC
 extern Topic<CommStruct> tcTopic;

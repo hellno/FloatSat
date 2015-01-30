@@ -23,6 +23,9 @@ Satellite::Satellite(const char* name, uint64_t periode) : Thread(name){
 
 	this->anglePID = AnglePID();
 	this->rotPID = RotPID();
+
+	anglePID.setPeriod(periode / 1000);
+	rotPID.setPeriod(periode / 1000);
 }
 
 void Satellite::init(void){
@@ -71,6 +74,9 @@ void Satellite::handleModePeriodic(void){
 
 void Satellite::setPeriode(uint64_t periode){
 	this->periode = periode;
+	anglePID.setPeriod(periode / 1000);
+	rotPID.setPeriod(periode / 1000);
+
 	if (DEBUG) xprintf("changed satellite period to: %ld\n", this->periode);
 }
 
@@ -84,12 +90,26 @@ void Satellite::setMode(SkyNetMode newMode){
 	switchMode();
 
 }
-
+/* Camera mission mode */
 void Satellite::sendPicture(void){
 	if(mode == MISION){
 		camera.sendPicture();
 	}
 }
+
+void Satellite::camDetect(void){
+	if(mode == MISION){
+		camera.DetectSatellite();
+	}
+}
+
+void Satellite::capturePicture(void){
+	if(mode == MISION){
+		camera.Capture();
+	}
+}
+
+
 void Satellite::switchMode(void){
 	switch(mode){
 	case STDNBY:
@@ -118,17 +138,18 @@ SkyNetMode Satellite::getCurrentMode(void){
 	return mode;
 }
 
+
 void Satellite::setAnglePIDConst(PIDConstant select, float val){
 	switch(select){
 	case(P):
-			anglePID.setP(val);
-			break;
+		anglePID.setP(val);
+		break;
 	case(I):
-			anglePID.setI(val);
-			break;
+		anglePID.setI(val);
+		break;
 	case(D):
-			anglePID.setD(val);
-			break;
+		anglePID.setD(val);
+		break;
 	default:
 		return;
 	}
@@ -137,14 +158,14 @@ void Satellite::setAnglePIDConst(PIDConstant select, float val){
 void Satellite::setRotPIDConst(PIDConstant select, float val){
 	switch(select){
 	case(P):
-			rotPID.setP(val);
-			break;
+		rotPID.setP(val);
+		break;
 	case(I):
-			rotPID.setI(val);
-			break;
+		rotPID.setI(val);
+		break;
 	case(D):
-			rotPID.setD(val);
-			break;
+		rotPID.setD(val);
+		break;
 	default:
 		return;
 	}

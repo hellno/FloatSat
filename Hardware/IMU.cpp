@@ -13,9 +13,12 @@ RawVector3D maximum = { -32767, -32767, -32767 };
 
 Topic<RawVector3D> accTopic(-1, "accelerometer");
 Topic<RawVector3D> magTopic(-1, "magnetometer");
-Topic<RawVector3D> gyroTopic(-1, "gyro");
+
+Topic<Vector3D> gyroTopic(-1, "gyro");
+
 Topic<float> tempTopic(-1, "temperature");
 Topic<float> orientationTopic(-1, "orientation");
+Topic<float> yawAngTopic(-1, "gyro yaw angle");
 
 #define IMU_PORT GPIO_055 //=PD07
 
@@ -24,8 +27,8 @@ uint32_t retVal = 0;
 const uint8_t magDataCmd[] = { 0x80 | MAG_X_L };
 const uint8_t tmpDataCmd[] = { 0x80 | TEMP_LOW };
 
-//RawVector3D gyroOffset;
 RawVector3D tempMagDat;
+float gyroZValue = 0.0;
 
 int16_t min(int16_t a, int16_t b){
 	if(a > b)
@@ -42,6 +45,7 @@ int16_t max(int16_t a, int16_t b){
 IMU::IMU(const char* name, uint64_t periode) : Thread(name){
 	this->periode = periode;
 	this->magCalibIsActive = false;
+
 }
 
 void IMU::setMagCalibMode(bool active){
@@ -49,6 +53,9 @@ void IMU::setMagCalibMode(bool active){
 }
 
 void IMU::init(){
+
+	xprintf("IMU init period: %ld\n", periode);
+
 	imuGPIO = HAL_GPIO(IMU_PORT);
 	imuGPIO.init(true,1,1);
 
@@ -121,9 +128,11 @@ void IMU::calcBias(void){
 			yAccSum / BIAS_BUFFER_SIZE,
 			zAccSum / BIAS_BUFFER_SIZE);
 
+	/*
 	acc.setMagBias(xMagSum / BIAS_BUFFER_SIZE,
 			yMagSum / BIAS_BUFFER_SIZE,
 			zMagSum / BIAS_BUFFER_SIZE);
+	*/
 	if (DEBUG){
 		xprintf("gyro bias: [%ld|%ld|%ld]\n", gyro.getXBias(), gyro.getYBias(), gyro.getZBias());
 		xprintf("acc bias: [%ld|%ld|%ld]\n", acc.getAccXBias(), acc.getAccYBias(), acc.getAccZBias());
@@ -136,9 +145,11 @@ void IMU::setPeriode(uint64_t periode){
 }
 
 void IMU::run(){
-	RawVector3D gyroRawData, accRawData, magRawData;
+	RawVector3D accRawData, magRawData;
+	Vector3D gyroRawData;
 	float temp, orientation;
-	//calcBias();
+
+	calcBias();
 
 	while(1){
 		suspendCallerUntil(NOW() + periode);
@@ -167,7 +178,6 @@ void IMU::run(){
 			maximum.y = max(tempMagDat.y, maximum.y);
 			maximum.z = max(tempMagDat.z, maximum.z);
 
-
 			xprintf("min: (%d|%d|%d)\n", minimum.x, minimum.y, minimum.z);
 			xprintf("max: (%d|%d|%d)\n", maximum.x, maximum.y, maximum.z);
 		}
@@ -183,6 +193,14 @@ void IMU::run(){
 			magRawData.z = acc.getMagZ();
 		}
 
+		/* gyro integration */
+		if(abs(gyroRawData.z) > 1){
+			gyroZValue += gyro.getZ() * (periode / (MILLISECONDS * 1000.0));
+		}
+		//xprintf("GYRANG: %f (prd:%f)\n", gyroZValue, periode / (MILLISECONDS * 1000.0));
+
+		yawAngTopic.publish(gyroZValue);
+		/*
 		orientation = acc.getOrientation();
 		temp = acc.getTemp();
 
@@ -192,12 +210,13 @@ void IMU::run(){
 		orientationTopic.publish(orientation);
 		tempTopic.publish(temp);
 
+		*/
+
 		if(DBGOUT){
 			xprintf("GYRDAT%d,%d,%d\n", gyroRawData.x, gyroRawData.y, gyroRawData.z);
 			xprintf("ACCDAT%d,%d,%d\n", accRawData.x, accRawData.y, accRawData.z);
 			xprintf("MAGDAT%d,%d,%d\n", magRawData.x, magRawData.y, magRawData.z);
 			xprintf("HEADNG%f\n", orientation);
-			xprintf("TMPIMU%f\n", temp);
 		}
 	}
 

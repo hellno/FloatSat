@@ -10,6 +10,7 @@
 
 #include "rodos.h"
 #include "hal.h"
+#include "../topics.h"
 
 #include "stm32f4xx.h"
 #include "stm32f4xx_usart.h"
@@ -47,11 +48,11 @@ private:
 
 	int targetX;
 	int targetY;
+	RawVector2D target;
 
 	bool active;
 
 	void InitOV7670();
-	void DetectSatellite();
 	void delayx(unsigned int ms);
 public:
 	Camera(const char* name);
@@ -61,6 +62,7 @@ public:
 	void sendPicture();
 	void Capture();
 
+	void DetectSatellite();
 	void turnOn(void);
 	void turnOff(void);
 };

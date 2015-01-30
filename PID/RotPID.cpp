@@ -7,7 +7,7 @@
 
 #include "RotPID.h"
 
-Fifo<RawVector3D, 5> rotFifo;
+Fifo<Vector3D, 5> rotFifo;
 Subscriber rotSub(gyroTopic, rotFifo, "velocitySubForRotPID");
 
 RotPID::RotPID(void){
@@ -15,9 +15,16 @@ RotPID::RotPID(void){
 	I = 0.0;
 	D = 0.0;
 
+	/* OLD VALUES
 	P_factor = -0.002932;
 	I_factor = -0.586484;
 	D_factor = 0;
+	*/
+
+	/* 20 MS */
+	P_factor = -125.3574;
+	I_factor = -1.04339;
+	D_factor = 62.3248;
 
 	integral = 0.0;
 	derivative = 0.0;
@@ -81,4 +88,8 @@ float RotPID::getD(void){
 
 uint16_t RotPID::currentOutput(void){
 	return (uint16_t) output;
+}
+
+void RotPID::setPeriod(float seconds){
+	this->period = seconds;
 }
