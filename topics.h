@@ -18,9 +18,11 @@
 
 #define PID_ERROR_THRESHOLD 5
 
-#define BATTERY_CHANNEL ADC_CH_000
-#define SOLAR_PANEL1_CHANNEL ADC_CH_001
-#define SOLAR_PANEL2_CHANNEL ADC_CH_002
+#define BATTERY_CHANNEL ADC_CH_000 		//= PA0/PA0/PA0
+#define SOLAR_PANEL1_CHANNEL ADC_CH_001 //= PA1/PA1/PA1
+#define SOLAR_PANEL2_CHANNEL ADC_CH_002 //= PA2/PA2/PA2
+
+#define SOLAR_PANEL_RESISTOR 1.0f
 
 extern bool DEBUG; //one-time status messages
 extern bool DBGOUT; //periodic, fast outputs
@@ -100,6 +102,7 @@ extern Topic<float> yawAngTopic;
 extern Topic<RawVector2D> cameraTargetTopic;
 extern Topic<float> batteryPercentageTopic;
 extern Topic<float> batteryVoltageTopic;
+extern Topic<float> solarpanelChargeTopic;
 
 //TC
 extern Topic<CommStruct> tcTopic;

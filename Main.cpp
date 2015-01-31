@@ -14,6 +14,7 @@
 #include "Hardware/IMU.h"
 #include "Hardware/MotorThread.h"
 #include "Hardware/Battery.h"
+#include "Hardware/SolarPanel.h"
 #include "TC.h"
 #include "Satellite.h"
 #include "TM.h"
@@ -26,6 +27,8 @@ HAL_UART uart_bt(UART_IDX2);
 HAL_I2C light_i2c(I2C_IDX1);
 HAL_I2C imuI2C(I2C_IDX2);
 HAL_ADC adc(ADC_IDX1);
+HAL_ADC solar_adc1(ADC_IDX2);
+HAL_ADC solar_adc2(ADC_IDX3);
 
 CommHandler ch("CommHandler", &uart_usb, 20 * MILLISECONDS);
 
@@ -33,7 +36,7 @@ IMU imu("IMU", 100 * MILLISECONDS);
 LightSensor ls("LightSensor", &light_i2c, STD_PERIOD);
 MotorThread mt("motorThread");
 Battery battery("Battery", STD_PERIOD, &adc);
-
+SolarPanel sp("SolarPanel", STD_PERIOD, &solar_adc1, &solar_adc2);
 Camera camera("Camera");
 
 TM tm("tmHandler", 20 * MILLISECONDS);

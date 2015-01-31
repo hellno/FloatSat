@@ -19,6 +19,7 @@ Fifo<float, FIFO_SIZE> yawAngleFifo;
 Fifo<RawVector2D, FIFO_SIZE> cameraTargetFifo;
 Fifo<float, FIFO_SIZE> batPercFifo;
 Fifo<float, FIFO_SIZE> batVolFifo;
+Fifo<float, FIFO_SIZE> solarpanelCurrentFifo;
 
 Subscriber lightSubscriber(lightTopic, lightFifo, "lightSub");
 Subscriber gyroSubscriber(gyroTopic, gyroFifo, "gyroSub");
@@ -30,6 +31,7 @@ Subscriber yawAngleSubscriber(yawAngTopic, yawAngleFifo, "yawAngleSub");
 Subscriber cameraTargetSubscriber(cameraTargetTopic, cameraTargetFifo, "cameraTargetSub");
 Subscriber batteryVoltageSubscriber(batteryVoltageTopic, batVolFifo, "batteryVoltageSub");
 Subscriber batteryPercentageSubscriber(batteryPercentageTopic, batPercFifo, "batteryPercentageSub");
+Subscriber solarpanelChargeSubscriber(solarpanelChargeTopic, solarpanelCurrentFifo, "solarpanelCurrentSub");
 
 char buf[BUFFER_SIZE];
 
@@ -174,7 +176,12 @@ void TM::sendHousekeepingData(void){
 		tmTopic.publish(cs);
 	}
 
-
+	//SOLPAC
+	if(solarpanelCurrentFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "SOLPAC");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
 }
 
 void TM::setPeriode(uint64_t periode){

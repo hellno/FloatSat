@@ -11,13 +11,13 @@ Topic<float> batteryPercentageTopic(-1, "BatteryPercentageTopic");
 Topic<float> batteryVoltageTopic(-1, "BatteryVoltageTopic");
 
 Battery::Battery(const char* name, uint64_t periode, HAL_ADC *adc) : Thread(name){
-		this->periode = periode;
-		this->active = true;
-		this->adc = adc;
+	this->periode = periode;
+	this->active = true;
+	this->adc = adc;
 }
 
 void Battery::init(void){
-	adc->init(BATTERY_CHANNEL); // PA0/PA0/PA0
+	adc->init(BATTERY_CHANNEL);
 }
 
 void Battery::run(void){
