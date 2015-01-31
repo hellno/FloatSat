@@ -49,11 +49,11 @@ bool SolarPanel::isOn(void){
 }
 
 int32_t SolarPanel::getRawVoltage1(void){
-	return adc1->read(ADC_CH_001);
+	return adc1->read(SOLAR_PANEL1_CHANNEL);
 }
 
 int32_t SolarPanel::getRawVoltage2(void){
-	return adc2->read(ADC_CH_002);
+	return adc2->read(SOLAR_PANEL2_CHANNEL);
 }
 
 float SolarPanel::getCurrent(void){
