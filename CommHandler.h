@@ -25,6 +25,7 @@ public:
 	void run();
 	bool parseStringToPacket(char * str, int size, CommStruct* cs);
 	void parsePacketToString(char * outStr, CommStruct *cs, bool debug);
+	HAL_UART getUart(void);
 };
 
 #endif /* SKYNET_COMMHANDLER_H_ */

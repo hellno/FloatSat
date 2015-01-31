@@ -15,6 +15,9 @@
 
 class Satellite : public Thread {
 private:
+	HAL_PWM firePWM; // PWM_IDX00 -> PE9
+	HAL_GPIO pwmGPIO; // PE9
+
 	uint64_t periode;
 	SkyNetMode mode;
 
@@ -38,6 +41,7 @@ public:
 	void sendPicture(void);
 	void camDetect(void);
 	void capturePicture(void);
+	void fireNet(void);
 };
 
 #endif /* SKYNET_SATELLITE_H_ */

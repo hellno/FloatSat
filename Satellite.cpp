@@ -10,15 +10,20 @@
 #include "TM.h"
 #include "Camera/Camera.h"
 #include "Hardware/Motor.h"
+#include "CommHandler.h"
 
 extern TC tc;
 extern TM tm;
+extern CommHandler ch;
 extern Camera camera;
 extern Motor mt;
 
-Satellite::Satellite(const char* name, uint64_t periode) : Thread(name){
+Satellite::Satellite(const char* name, uint64_t periode) : Thread(name),
+		firePWM(PWM_IDX00),pwmGPIO(GPIO_073){
 	this->periode = periode;
-
+	pwmGPIO.init(false,1,0);
+	firePWM.init(50,100);
+	firePWM.write(4);
 	mode = STDNBY;
 
 	this->anglePID = AnglePID();
@@ -93,11 +98,11 @@ void Satellite::setMode(SkyNetMode newMode){
 /* Camera mission mode */
 void Satellite::sendPicture(void){
 	if(mode == MISION){
-		camera.sendPicture();
+		camera.sendPicture(ch.getUart());
 	}
 }
 
-void Satellite::camDetect(void){
+/*void Satellite::camDetect(void){
 	if(mode == MISION){
 		camera.DetectSatellite();
 	}
@@ -107,15 +112,13 @@ void Satellite::capturePicture(void){
 	if(mode == MISION){
 		camera.Capture();
 	}
-}
+}*/
 
 
 void Satellite::switchMode(void){
 	switch(mode){
 	case STDNBY:
-		tm.turnOn();
 		camera.turnOff();
-
 		break;
 	case ROTMOD:
 
@@ -127,7 +130,6 @@ void Satellite::switchMode(void){
 
 		break;
 	case MISION:
-		tm.turnOff();
 		camera.turnOn();
 		break;
 	}
@@ -152,6 +154,12 @@ void Satellite::setAnglePIDConst(PIDConstant select, float val){
 		break;
 	default:
 		return;
+	}
+}
+
+void Satellite::fireNet() {
+	if(mode == MISION){
+		firePWM.write(11);
 	}
 }
 

@@ -11,15 +11,18 @@
 #include "stm32f4xx_dma.h"
 #include "stm32f4xx_dcmi.h"
 
+#include "../Camera.h"
+
 int cnt = 0;
 int start = 1;
 int count = 0;
+
+extern Camera camera;
 
 extern "C" void DMA1_Stream6_IRQHandler(void){
 	xprintf("Picture IT!\n");
 	if(DMA_GetITStatus(DMA1_Stream6, DMA_IT_TCIF6) == SET){
 		//xprintf("Frame send! -> Continue with Payload\n");
-		//state.frameReceived = false;
 		DMA_ClearFlag(DMA1_Stream6, DMA_IT_TCIF6);
 	}
 }
@@ -28,7 +31,9 @@ extern "C" void DMA2_Stream1_IRQHandler(void) {
 	static int K;
 	//Test on DMA2 Channel1 Transfer Complete interrupt
 	if (DMA_GetITStatus(DMA2_Stream1, DMA_IT_TCIF1) == SET) {
-		xprintf("Sending Pic\n");
+		xprintf("Frame Complete, detecting Target...\n");
+		camera.ProcessData();
+		DMA_ClearFlag(DMA1_Stream6, DMA_IT_TCIF6);
 		//sendPic = 1;	//when frame_flag =1,all the data will be send through serial port in main function while loop
 		DMA_ClearFlag(DMA2_Stream1, DMA_IT_TCIF1);
 	}

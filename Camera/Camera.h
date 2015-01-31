@@ -40,29 +40,28 @@ class Camera: public Thread {
 private:
 	Dcmi dcmi;
 	Sccb sccb;
-	HAL_GPIO ledg;
+	HAL_GPIO ledo;
 	HAL_GPIO reset;
 	HAL_GPIO power;
 
 	uint8_t DCMI_Buffer[IMAGESIZE];
 
-	int targetX;
-	int targetY;
 	RawVector2D target;
 
 	bool active;
+	bool processData;
 
 	void InitOV7670();
 	void delayx(unsigned int ms);
+	void Capture();
+	void DetectSatellite();
 public:
 	Camera(const char* name);
 	void init();
 	void run();
 	uint8_t* getPicture();
-	void sendPicture();
-	void Capture();
-
-	void DetectSatellite();
+	void sendPicture(HAL_UART uart);
+	void ProcessData();
 	void turnOn(void);
 	void turnOff(void);
 };

@@ -7,17 +7,20 @@
  */
 
 #include "Camera.h"
+#include "../TM.h"
 
 Topic<RawVector2D> cameraTargetTopic(-1, "camera target");
+
+extern TM tm;
 
 Camera::Camera(const char* name) :
 		Thread(name),
 		dcmi(IMAGESIZE, (uint32_t) DCMI_Buffer, FRAMERATE, CAPTUREMODE),
-		ledg(GPIO_061),
+		ledo(GPIO_061),
 		reset(GPIO_010),
-		power(GPIO_033),
-		targetX(0), targetY(0) {
+		power(GPIO_033) {
 		active = false;
+		processData = false;
 }
 
 void Camera::InitOV7670() {
@@ -46,7 +49,7 @@ void Camera::InitOV7670() {
 
 void Camera::init() {
 	xprintf("starting cam init\n");
-	ledg.init(true);
+	ledo.init(true);
 	reset.init(true);
 	power.init(true);
 	reset.setPins(1);
@@ -72,13 +75,19 @@ void Camera::init() {
 	xprintf("Done with cam init!\n");
 }
 
-void Camera::sendPicture() {
-	xprintf("F");
-	xprintf("%d;", target.x);
-	xprintf("%d;", target.y);
+void Camera::sendPicture(HAL_UART uart) {
+	tm.turnOff();
+	char tmpVal[2];
+	uart.write("F", 1);
+	sprintf(tmpVal, "%d;", target.x);
+	uart.write(tmpVal, 2);
+	sprintf(tmpVal, "%d;", target.y);
+	uart.write(tmpVal, 2);
 	for (int i = 0; i < IMAGESIZE; i += 2) {
-		xprintf("%u;", DCMI_Buffer[i]);
+		sprintf(tmpVal, "%u;", DCMI_Buffer[i]);
+		uart.write(tmpVal, 2);
 	}
+	tm.turnOn();
 }
 
 uint8_t* Camera::getPicture() {
@@ -147,40 +156,28 @@ void Camera::DetectSatellite() {
 		meanHeight++;
 	}
 
-//	targetX = meanWidth;
-//	targetY = meanHeight;
-
 	target.x = meanWidth;
 	target.y = meanHeight;
 	cameraTargetTopic.publish(target);
 	// -----------------------*/
 }
 
+void Camera::ProcessData() {
+	processData = true;
+}
+
 void Camera::run() {
 
 	while (1) {
-		if(active){
-			suspendCallerUntil(NOW()+2000*MILLISECONDS);
-//			if (ledg.readPins() == 0) {
-//				ledg.setPins(1);
-//				xprintf("capture\n");
-//				Capture();
-//				xprintf("sending\n");
-//			} else {
-//
-//				// Test Case: Send Pic when target detected, reset target afterwards!
-//				//DetectSatellite();
-//				sendPicture();
-//
-//			if((targetX>0)&&(targetY>0)){
-//				sendPicture();
-//				targetX = 0;
-//				targetY = 0;
-//			}
-//
-//
-//				ledg.setPins(0);
-//			}
+		if(processData){
+			processData=false;
+			DetectSatellite();
+
+			if(active) { // Continue Captureing/Processing if still active
+				Capture();
+			}
+
+			suspendCallerUntil(NOW()+100*MILLISECONDS);
 		}
 	}
 
@@ -197,8 +194,13 @@ void Camera::delayx(unsigned int ms) {
 
 void Camera::turnOn(void){
 	this->active = true;
+	//ledo.setPins(1);
+	xprintf("Cam active\n");
+	Capture();
 }
 void Camera::turnOff(void){
 	this->active = false;
+	xprintf("Cam inactive\n");
+	//ledo.setPins(0);
 }
 /***********************************************************************/
