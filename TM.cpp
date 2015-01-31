@@ -17,6 +17,8 @@ Fifo<float, FIFO_SIZE> tempFifo;
 Fifo<float, FIFO_SIZE> orientationFifo;
 Fifo<float, FIFO_SIZE> yawAngleFifo;
 Fifo<RawVector2D, FIFO_SIZE> cameraTargetFifo;
+Fifo<float, FIFO_SIZE> batPercFifo;
+Fifo<float, FIFO_SIZE> batVolFifo;
 
 Subscriber lightSubscriber(lightTopic, lightFifo, "lightSub");
 Subscriber gyroSubscriber(gyroTopic, gyroFifo, "gyroSub");
@@ -26,6 +28,8 @@ Subscriber tempSubscriber(tempTopic, tempFifo, "tempSub");
 Subscriber orientationSubscriber(orientationTopic, orientationFifo, "orientationSub");
 Subscriber yawAngleSubscriber(yawAngTopic, yawAngleFifo, "yawAngleSub");
 Subscriber cameraTargetSubscriber(cameraTargetTopic, cameraTargetFifo, "cameraTargetSub");
+Subscriber batteryVoltageSubscriber(batteryVoltageTopic, batVolFifo, "batteryVoltageSub");
+Subscriber batteryPercentageSubscriber(batteryPercentageTopic, batPercFifo, "batteryPercentageSub");
 
 char buf[BUFFER_SIZE];
 
@@ -109,23 +113,23 @@ void TM::sendHousekeepingData(void){
 
 	/*
 	//LGHTSN
-	lightFifo.get(tempInt);
-	sprintf(cs.param, "%.6s", "LGHTSN");
-	sprintf(cs.msg, "%.2f", tempInt);
-	tmTopic.publish(cs);
-
+	if(lightFifo.get(tempInt)){
+		sprintf(cs.param, "%.6s", "LGHTSN");
+		sprintf(cs.msg, "%.2f", tempInt);
+		tmTopic.publish(cs);
+	}
 	//MAGDAT
-	magFifo.get(tempRawVector);
-	sprintf(cs.param, "%.6s", "MAGDAT");
-	raw_vector_to_msg(&cs, &tempVector);
-	tmTopic.publish(cs);
-
+	if(magFifo.get(tempRawVector)){
+		sprintf(cs.param, "%.6s", "MAGDAT");
+		raw_vector_to_msg(&cs, &tempVector);
+		tmTopic.publish(cs);
+	}
 	//ACCDAT
-	accFifo.get(tempRawVector);
-	sprintf(cs.param, "%.6s", "ACCDAT");
-	raw_vector_to_string(cs.msg, &tempVector);
-	tmTopic.publish(cs);
-
+	if(accFifo.get(tempRawVector)){
+		sprintf(cs.param, "%.6s", "ACCDAT");
+		raw_vector_to_string(cs.msg, &tempVector);
+		tmTopic.publish(cs);
+	}
 
 	//GYRDAT
 	if(gyroFifo.get(tempVector)){
@@ -155,6 +159,22 @@ void TM::sendHousekeepingData(void){
 		raw_vector_to_string(cs.msg, &tempVector2D);
 		tmTopic.publish(cs);
 	}
+
+	//BATVOL
+	if(batVolFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "BATVOL");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
+
+	//BATPCT
+	if(batPercFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "BATPCT");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
+
+
 }
 
 void TM::setPeriode(uint64_t periode){

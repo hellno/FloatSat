@@ -18,6 +18,10 @@
 
 #define PID_ERROR_THRESHOLD 5
 
+#define BATTERY_CHANNEL ADC_CH_000
+#define SOLAR_PANEL1_CHANNEL ADC_CH_001
+#define SOLAR_PANEL2_CHANNEL ADC_CH_002
+
 extern bool DEBUG; //one-time status messages
 extern bool DBGOUT; //periodic, fast outputs
 
@@ -94,6 +98,8 @@ extern Topic<float> tempTopic;
 extern Topic<float> orientationTopic;
 extern Topic<float> yawAngTopic;
 extern Topic<RawVector2D> cameraTargetTopic;
+extern Topic<float> batteryPercentageTopic;
+extern Topic<float> batteryVoltageTopic;
 
 //TC
 extern Topic<CommStruct> tcTopic;
