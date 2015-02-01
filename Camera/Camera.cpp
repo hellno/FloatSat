@@ -77,17 +77,15 @@ void Camera::init() {
 
 void Camera::sendPicture(HAL_UART uart) {
 	tm.turnOff();
-	char tmpVal[2];
-	uart.write("F", 1);
-	sprintf(tmpVal, "%d;", target.x);
-	uart.write(tmpVal, 2);
-	sprintf(tmpVal, "%d;", target.y);
-	uart.write(tmpVal, 2);
+	char tmpVal[4];
+	uart.write("CAMERA", 6);
 	for (int i = 0; i < IMAGESIZE; i += 2) {
-		sprintf(tmpVal, "%u;", DCMI_Buffer[i]);
-		uart.write(tmpVal, 2);
+		sprintf(tmpVal, "%03u", DCMI_Buffer[i]);
+		uart.write(tmpVal,4);
+		while(!uart.isWriteFinished()) {}
 	}
-	tm.turnOn();
+	uart.write("CAMEND", 6);
+	//tm.turnOn();
 }
 
 uint8_t* Camera::getPicture() {

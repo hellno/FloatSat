@@ -25,6 +25,7 @@ Satellite::Satellite(const char* name, uint64_t periode) : Thread(name),
 	firePWM.init(50,100);
 	firePWM.write(4);
 	mode = STDNBY;
+	//tm.turnOff();
 
 	this->anglePID = AnglePID();
 	this->rotPID = RotPID();
