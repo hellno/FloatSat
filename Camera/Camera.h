@@ -35,6 +35,10 @@
 #define IMAGESIZE					(HEIGHT*WIDTH*2)
 #define THRESHOLD					200
 
+#define Q1							0.25f
+#define HALF						0.5f
+#define Q3							0.75f
+
 
 class Camera: public Thread {
 private:

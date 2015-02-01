@@ -94,6 +94,7 @@ extern Topic<float> tempTopic;
 extern Topic<float> orientationTopic;
 extern Topic<float> yawAngTopic;
 extern Topic<RawVector2D> cameraTargetTopic;
+extern Topic<bool> cameraFireTopic;
 
 //TC
 extern Topic<CommStruct> tcTopic;

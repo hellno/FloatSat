@@ -10,6 +10,7 @@
 #include "../TM.h"
 
 Topic<RawVector2D> cameraTargetTopic(-1, "camera target");
+Topic<bool> cameraFireTopic(-1, "camera fire");
 
 extern TM tm;
 
@@ -19,7 +20,8 @@ Camera::Camera(const char* name, HAL_UART uart) :
 		ledo(GPIO_061),
 		reset(GPIO_010),
 		power(GPIO_033),
-		tmUart(uart){
+		tmUart(uart),
+		sendPic(false){
 		active = false;
 		processData = false;
 }
@@ -121,7 +123,7 @@ void Camera::DetectSatellite() {
 	}
 
 	// Optimize here ------
-	long sum1 = 0;
+	/*long sum1 = 0;
 	long sum2 = 0;
 	//  xprintf("Horizontal Line:\n");
 	for (int x = 0; x < WIDTH; x++) {
@@ -146,13 +148,68 @@ void Camera::DetectSatellite() {
 	while (sum2 < (int) ((float) sum1 / 2.0)) {
 		sum2 += verticalLine[meanHeight];
 		meanHeight++;
-	}
+	}*/
 //	xprintf("Vertical sum 1: %d, sum 2: %d meanHeight: %d\n", sum1, sum2, meanHeight);
 
-	target.y = meanWidth;
-	target.x = meanHeight;
+    // Optimize here ------
+    int counter = 0;
+    int sum1 = 0;
+    int sum2 = 0;
+    for(int x = 0; x < WIDTH; x++) {
+        sum1 += horizontalLine[x];
+    }
+    int first_quarter = 0;
+    int third_quarter = 0;
+    int targetX = 0;
+    int spanX = 0;
+    while(sum2<Q3*sum1) {
+        sum2 += horizontalLine[counter];
+        counter++;
+        if((Q1*sum1<sum2)&&(first_quarter==0)){
+            first_quarter = counter;
+        }
+        if((HALF*sum1<sum2)&&(targetX==0)) {
+            targetX = counter;
+        }
+        if((Q3*sum1<sum2)&&(third_quarter==0)) {
+            third_quarter = counter;
+        }
+    }
+    spanX = third_quarter - first_quarter;
+
+    counter = 0;
+    sum1 = 0;
+    sum2 = 0;
+    for(int y = 0; y < HEIGHT; y++) {
+        sum1 += verticalLine[y];
+    }
+    first_quarter = 0;
+    third_quarter = 0;
+    int targetY = 0;
+    int spanY = 0;
+    while(sum2<Q3*sum1) {
+        sum2 += verticalLine[counter];
+        counter++;
+        if((Q1*sum1<sum2)&&(first_quarter==0)){
+            first_quarter = counter;
+        }
+        if((HALF*sum1<sum2)&&(targetY==0)) {
+            targetY = counter;
+        }
+        if((Q3*sum1<sum2)&&(third_quarter==0)) {
+            third_quarter = counter;
+        }
+    }
+    spanY = third_quarter - first_quarter;
+    // -----------------------
+
+    bool fireAngle = spanX>2*spanY;
+	target.y = targetX;
+	target.x = targetY;
 	cameraTargetTopic.publish(target);
+	cameraFireTopic.publish(fireAngle);
 	xprintf("Target: x:%d, y:%d\n", target.x, target.y);
+	xprintf("Fire: %d", fireAngle);
 	// -----------------------*/
 }
 

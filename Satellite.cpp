@@ -15,9 +15,11 @@
 
 extern Camera camera;
 
-
 Fifo<RawVector2D, FIFO_SIZE> targetFifo;
 Subscriber targetSubscriber(cameraTargetTopic, targetFifo, "cameraTargetSub");
+
+Fifo<bool, FIFO_SIZE> fireFifo;
+Subscriber fireSubscriber(cameraFireTopic, fireFifo, "cameraFireSub");
 
 Satellite::Satellite(const char* name, uint64_t periode) : Thread(name),
 		firePWM(PWM_IDX00),pwmGPIO(GPIO_073),tempValue(0){
@@ -76,12 +78,20 @@ void Satellite::handleModePeriodic(void){
 	case MISION:
 		RawVector2D tempVector2D;
 		targetFifo.get(tempVector2D);
+		bool isInFireAngle;
+		fireFifo.get(isInFireAngle);
+
 		if(tempVector2D.x>0) {
 			rotPID.setDestinationRotation(((60-tempVector2D.x)/60.0));
 		}
 
 		if((tempVector2D.x>55)&&(tempVector2D.x<65)) {
-			fireNet();
+			HAL_GPIO fireLED(GPIO_063);
+			fireLED.init(true);
+			fireLED.setPins(1);
+			if(isInFireAngle){
+				fireNet();
+			}
 		}
 
 		rotPID.run();
