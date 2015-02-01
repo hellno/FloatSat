@@ -6,9 +6,12 @@
  */
 
 #include "AnglePID.h"
+#include "../Hardware/MotorThread.h"
 
 Fifo<float, 5> angleFifo;
-Subscriber angleSub(orientationTopic, angleFifo, "orientationSubForAnglePID");
+Subscriber angleSub(yawAngTopic, angleFifo, "orientationSubForAnglePID");
+
+extern MotorThread mt;
 
 AnglePID::AnglePID(void){
 	P = 0.0;
@@ -21,11 +24,11 @@ AnglePID::AnglePID(void){
 	D_factor = 31.172;
 	*/
 
-	/* 100 ms */
-	P_factor = -29.4484;
-	I_factor = -0.057;
-	D_factor = 62.3211;
-	period = 0.1;
+	/* 10 ms */
+	P_factor = 132.31;
+	I_factor = 1.16;
+	D_factor = -62.32;
+	period = 0.01;
 
 	integral = 0.0;
 	derivative = 0.0;
@@ -47,9 +50,9 @@ void AnglePID::run(void){
 		error += 360;
 	}
 	if (fabs(error) > PID_ERROR_THRESHOLD) {
-		integral += error * period;
+		integral += error;// * period;
 	}
-	derivative = (error - prevError) / period;
+	derivative = (error - prevError);// / period;
 
 	P = P_factor * error;
 	I = I_factor * integral;
@@ -58,12 +61,12 @@ void AnglePID::run(void){
 	output = P + I + D;
 
 	prevError = error;
-
+	mt.setMotorSpeed(output);
 	xprintf("ANG_PID: %.2f (e:%.2f,desAng:%.2f,curAng:%.2f)\n", output, error, desAngle, tempVal);
 }
 
-uint16_t AnglePID::currentOutput(void){
-	return (uint16_t) output;
+int16_t AnglePID::currentOutput(void){
+	return (int16_t) output;
 }
 
 void AnglePID::setDestinationAngle(float angle){
@@ -115,3 +118,12 @@ float AnglePID::getI(void){
 float AnglePID::getD(void){
 	return D;
 }
+
+float AnglePID::getError(void){
+	return prevError;
+}
+
+float AnglePID::getOutput(void){
+	return output;
+}
+

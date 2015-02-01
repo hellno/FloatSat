@@ -43,7 +43,7 @@ void CommHandler::run(void) {
 			}
 
 /*		ECHO	*/
-//			xprintf("--> ECHO p:%.6s m:%s\n", cs.param, cs.msg);
+			xprintf("--> ECHO p:%.6s m:%s\n", cs.param, cs.msg);
 //			parsePacketToString(buf, &cs, true);
 //			uart->write(buf, 8 + strlen(cs.msg));
 		}

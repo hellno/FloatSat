@@ -10,11 +10,18 @@
 #include "TM.h"
 #include "Camera/Camera.h"
 #include "Hardware/Motor.h"
+#include "SunFinding.h"
+
+Topic<float> pidErrorTopic(-1, "PID Error");
+Topic<float> pidOutputTopic(-1, "PID Output");
 
 extern TC tc;
 extern TM tm;
 extern Camera camera;
-extern Motor mt;
+extern SunFinding sf;
+
+float tempVal;
+int16_t tempValue;
 
 Satellite::Satellite(const char* name, uint64_t periode) : Thread(name){
 	this->periode = periode;
@@ -59,12 +66,22 @@ void Satellite::handleModePeriodic(void){
 	case ROTMOD:
 		rotPID.run();
 		tempValue = rotPID.currentOutput();
-		motorSpeedTopic.publish(tempValue);
+
+		tempVal = rotPID.getOutput();
+		pidOutputTopic.publish(tempVal);
+
+		tempVal = rotPID.getError();
+		pidErrorTopic.publish(tempVal);
 		break;
 	case COMPAS:
 		anglePID.run();
 		tempValue = anglePID.currentOutput();
-		motorSpeedTopic.publish(tempValue);
+
+		tempVal = anglePID.getOutput();
+		pidOutputTopic.publish(tempVal);
+
+		tempVal = anglePID.getError();
+		pidErrorTopic.publish(tempVal);
 		break;
 	case MISION:
 
@@ -124,7 +141,7 @@ void Satellite::switchMode(void){
 
 		break;
 	case SUNFIN:
-
+		sf.turnOn();
 		break;
 	case MISION:
 		tm.turnOff();

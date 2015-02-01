@@ -1,5 +1,5 @@
 /*
- * SolarPanel.cpp
+ * Battery.cpp
  *
  *  Created on: 31.01.2015
  *      Author: holger
@@ -7,55 +7,50 @@
 
 #include "SolarPanel.h"
 
-Topic<float> solarpanelChargeTopic(-1, "SolarPanelChargeCurrentTopic");
+Topic<float> batteryVoltageTopic(-1, "BatteryVoltageTopic");
 
-SolarPanel::SolarPanel(const char* name, uint64_t periode, HAL_ADC *adc1, HAL_ADC *adc2) : Thread(name){
+SolarPanel::SolarPanel(const char* name, uint64_t periode, HAL_ADC *adc) : Thread(name){
 	this->periode = periode;
 	this->active = true;
-
-	this->adc1 = adc1;
-	this->adc2 = adc2;
+	this->adc = adc;
 }
 
-void SolarPanel::init(){
-	this->adc1->init(SOLAR_PANEL1_CHANNEL);
-	this->adc2->init(SOLAR_PANEL2_CHANNEL);
+void SolarPanel::init(void){
+	adc->init(BATTERY_CHANNEL);
 }
 
-void SolarPanel::run(){
-	float tempCharge;
+void SolarPanel::run(void){
+	float tempPercentage, tempVoltage;
 
 	while(1){
 		if(active){
 			suspendCallerUntil(NOW() + periode);
 
-			tempCharge = getCurrent();
+			tempVoltage = getSolarPanelVoltage();
 
-			solarpanelChargeTopic.publish(tempCharge);
+			batteryVoltageTopic.publish(tempVoltage);
 		}
 	}
+}
+
+int32_t SolarPanel::getSolarPanelRawValue(void){
+	return adc->read(BATTERY_CHANNEL);
+}
+
+float SolarPanel::getSolarPanelPercent(void){
+	return (getSolarPanelVoltage() - MINVOLTAGE) / MAXMINDIFF * 100;
+}
+
+float SolarPanel::getSolarPanelVoltage(void){
+	return getSolarPanelRawValue()/ADC_RESOLUTION * MAXVOLTAGE * SOLARPANEL_FACTOR;
 }
 
 void SolarPanel::turnOn(void){
 	active = true;
 }
-
 void SolarPanel::turnOff(void){
 	active = false;
 }
-
 bool SolarPanel::isOn(void){
 	return active;
-}
-
-int32_t SolarPanel::getRawVoltage1(void){
-	return adc1->read(SOLAR_PANEL1_CHANNEL);
-}
-
-int32_t SolarPanel::getRawVoltage2(void){
-	return adc2->read(SOLAR_PANEL2_CHANNEL);
-}
-
-float SolarPanel::getCurrent(void){
-	return (getRawVoltage1() - getRawVoltage2()) / SOLAR_PANEL_RESISTOR;
 }

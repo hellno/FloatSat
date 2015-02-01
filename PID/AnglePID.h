@@ -34,7 +34,7 @@ public:
 	AnglePID(void);
 	void setDestinationAngle(float angle);
 	void run(void);
-	uint16_t currentOutput(void);
+	int16_t currentOutput(void);
 	void setPeriod(float seconds);
 
 	void setP(float p);
@@ -44,6 +44,9 @@ public:
 	float getP(void);
 	float getI(void);
 	float getD(void);
+
+	float getOutput(void);
+	float getError(void);
 };
 
 #endif /* ANGLEPID_H_ */

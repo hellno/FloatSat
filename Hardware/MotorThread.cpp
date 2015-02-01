@@ -8,10 +8,9 @@
 #include "MotorThread.h"
 #include "fifo.h"
 
-Topic<uint16_t> motorSpeedTopic(-1, "motorSpeedTopic");
+Topic<int16_t> motorSpeedTopic(-1, "motorSpeedTopic");
 
-
-SyncFifo<uint16_t, 10> fifo;
+Fifo<int16_t, 2> fifo;
 Subscriber nameNotImportant02(motorSpeedTopic, fifo, "motorSpeedSubscriber");
 
 MotorThread::MotorThread(const char* name) : Thread(name){
@@ -28,15 +27,19 @@ void MotorThread::init(){
 }
 
 void MotorThread::run(){
-	uint16_t motorSpeed;
+	int16_t motorSpeed;
 
 	while(1){
-		suspendCallerUntil();
-		fifo.syncGet(motorSpeed);
-		this->setMotorSpeed(motorSpeed);
+		suspendCallerUntil(NOW() + 20*MILLISECONDS);
+
+		if(fifo.get(motorSpeed)){
+			this->setMotorSpeed(motorSpeed);
+		}
 	}
 }
 
-void MotorThread::setMotorSpeed(uint16_t newMotorSpeed){
+void MotorThread::setMotorSpeed(int16_t newMotorSpeed){
 	motor.setSpeed(newMotorSpeed);
+	motorSpeedTopic.publish(newMotorSpeed);
+	xprintf("new motspd: %d\n", newMotorSpeed);
 }

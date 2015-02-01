@@ -20,8 +20,6 @@ private:
 
 	AnglePID anglePID;
 	RotPID rotPID;
-
-	uint16_t tempValue;
 public:
 	Satellite(const char* name, uint64_t periode);
 	void init(void);

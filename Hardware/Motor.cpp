@@ -42,7 +42,7 @@ void Motor::stopMotor(){
 	xprintf("stop motor\n");
 }
 
-void Motor::setSpeed(uint16_t duty_cycle){
+void Motor::setSpeed(int16_t duty_cycle){
 	if(duty_cycle <= 0)
 		this->stopMotor();
 
@@ -51,7 +51,6 @@ void Motor::setSpeed(uint16_t duty_cycle){
 
 	if(duty_cycle > 1000)
 		duty_cycle = 1000;
-
 
 	pwm.write(duty_cycle);
 	if(DEBUG) xprintf("set new motor speed to %d%\n", duty_cycle);

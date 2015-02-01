@@ -17,10 +17,12 @@ Fifo<float, FIFO_SIZE> tempFifo;
 Fifo<float, FIFO_SIZE> orientationFifo;
 Fifo<float, FIFO_SIZE> yawAngleFifo;
 Fifo<RawVector2D, FIFO_SIZE> cameraTargetFifo;
-Fifo<float, FIFO_SIZE> batPercFifo;
 Fifo<float, FIFO_SIZE> batVolFifo;
-Fifo<float, FIFO_SIZE> solarpanelCurrentFifo;
+Fifo<int16_t, FIFO_SIZE> motorSpeedFifo;
+Fifo<float, FIFO_SIZE> pidErrorFifo;
+Fifo<float, FIFO_SIZE> pidOutputFifo;
 
+Subscriber motorSpeedSubscriber(motorSpeedTopic, motorSpeedFifo, "motorSpeedSub");
 Subscriber lightSubscriber(lightTopic, lightFifo, "lightSub");
 Subscriber gyroSubscriber(gyroTopic, gyroFifo, "gyroSub");
 Subscriber accSubscriber(accTopic, accFifo, "accSub");
@@ -30,8 +32,8 @@ Subscriber orientationSubscriber(orientationTopic, orientationFifo, "orientation
 Subscriber yawAngleSubscriber(yawAngTopic, yawAngleFifo, "yawAngleSub");
 Subscriber cameraTargetSubscriber(cameraTargetTopic, cameraTargetFifo, "cameraTargetSub");
 Subscriber batteryVoltageSubscriber(batteryVoltageTopic, batVolFifo, "batteryVoltageSub");
-Subscriber batteryPercentageSubscriber(batteryPercentageTopic, batPercFifo, "batteryPercentageSub");
-Subscriber solarpanelChargeSubscriber(solarpanelChargeTopic, solarpanelCurrentFifo, "solarpanelCurrentSub");
+Subscriber pidErrorSubscriber(pidErrorTopic, pidErrorFifo, "pidErrorSub");
+Subscriber pidOutputSubscriber(pidOutputTopic, pidOutputFifo, "pidOutputSub");
 
 char buf[BUFFER_SIZE];
 
@@ -111,8 +113,10 @@ void TM::sendHousekeepingData(void){
 	Vector3D tempVector;
 	RawVector2D tempVector2D;
 	uint32_t tempInt;
+	int16_t temp16Int;
 	float tempFloat;
 
+	/*
 	//LGHTSN
 	if(lightFifo.get(tempInt)){
 		sprintf(cs.param, "%.6s", "LGHTSN");
@@ -137,14 +141,6 @@ void TM::sendHousekeepingData(void){
 	if(gyroFifo.get(tempVector)){
 		sprintf(cs.param, "%.6s", "GYRDAT");
 		vector_to_string(cs.msg, &tempVector);
-		tmTopic.publish(cs);
-	}
-
-
-	//YAWANG
-	if(yawAngleFifo.get(tempFloat)){
-		sprintf(cs.param, "%.6s", "YAWANG");
-		sprintf(cs.msg, "%.2f", tempFloat);
 		tmTopic.publish(cs);
 	}
 
@@ -182,7 +178,33 @@ void TM::sendHousekeepingData(void){
 		sprintf(cs.msg, "%.2f", tempFloat);
 		tmTopic.publish(cs);
 	}
+	*/
+	//MOTSPD
+	if(motorSpeedFifo.get(temp16Int)){
+		sprintf(cs.param, "%.6s", "MOTSPD");
+		sprintf(cs.msg, "%d", temp16Int);
+		tmTopic.publish(cs);
+	}
 
+	//YAWANG
+	if(yawAngleFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "YAWANG");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
+
+	//PIDERR
+	if(pidErrorFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "PIDERR");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
+	//PIDOUT
+	if(pidOutputFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "PIDOUT");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
 }
 
 void TM::setPeriode(uint64_t periode){

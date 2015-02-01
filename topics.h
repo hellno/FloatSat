@@ -87,7 +87,7 @@ enum SkyNetTopicID{
 	UserButtonTopicID = 34567,
 };
 //Hardware
-extern Topic<uint16_t> motorSpeedTopic;
+extern Topic<int16_t> motorSpeedTopic;
 
 //TM
 extern Topic<CommStruct> tmTopic;
@@ -103,6 +103,8 @@ extern Topic<RawVector2D> cameraTargetTopic;
 extern Topic<float> batteryPercentageTopic;
 extern Topic<float> batteryVoltageTopic;
 extern Topic<float> solarpanelChargeTopic;
+extern Topic<float> pidErrorTopic;
+extern Topic<float> pidOutputTopic;
 
 //TC
 extern Topic<CommStruct> tcTopic;

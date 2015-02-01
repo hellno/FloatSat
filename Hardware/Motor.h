@@ -30,7 +30,7 @@ public:
 	void startMotor();
 	void stopMotor();
 	void initTimer();
-	void setSpeed(uint16_t percentage);
+	void setSpeed(int16_t percentage);
 };
 
 #endif /* MOTOR_H_ */

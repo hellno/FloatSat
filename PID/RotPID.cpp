@@ -6,9 +6,12 @@
  */
 
 #include "RotPID.h"
+#include "../Hardware/MotorThread.h"
 
 Fifo<Vector3D, 5> rotFifo;
 Subscriber rotSub(gyroTopic, rotFifo, "velocitySubForRotPID");
+
+extern MotorThread mt;
 
 RotPID::RotPID(void){
 	P = 0.0;
@@ -49,6 +52,7 @@ void RotPID::run(void){
 	output = P + I + D;
 
 	prevError = error;
+	mt.setMotorSpeed(output);
 
 	if(DEBUG) xprintf("ROT_PID: %.2f (e:%.2f,desRot:%.2f,curRot:%d)\n", output, error, desRot, tempVal.z);
 }
@@ -86,10 +90,18 @@ float RotPID::getD(void){
 	return D;
 }
 
-uint16_t RotPID::currentOutput(void){
+int16_t RotPID::currentOutput(void){
 	return (uint16_t) output;
 }
 
 void RotPID::setPeriod(float seconds){
 	this->period = seconds;
+}
+
+float RotPID::getOutput(void){
+	return output;
+}
+
+float RotPID::getError(void){
+	return prevError;
 }

@@ -7,6 +7,7 @@ CPP_SRCS += \
 ../CommHandler.cpp \
 ../Main.cpp \
 ../Satellite.cpp \
+../SunFinding.cpp \
 ../TC.cpp \
 ../TM.cpp 
 
@@ -14,6 +15,7 @@ OBJS += \
 ./CommHandler.o \
 ./Main.o \
 ./Satellite.o \
+./SunFinding.o \
 ./TC.o \
 ./TM.o 
 
@@ -21,6 +23,7 @@ CPP_DEPS += \
 ./CommHandler.d \
 ./Main.d \
 ./Satellite.d \
+./SunFinding.d \
 ./TC.d \
 ./TM.d 
 
