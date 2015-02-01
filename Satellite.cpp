@@ -10,16 +10,17 @@
 #include "TM.h"
 #include "Camera/Camera.h"
 #include "Hardware/Motor.h"
-#include "CommHandler.h"
 
-extern TC tc;
-extern TM tm;
-extern CommHandler ch;
+#define FIFO_SIZE 3
+
 extern Camera camera;
-extern Motor mt;
+
+
+Fifo<RawVector2D, FIFO_SIZE> targetFifo;
+Subscriber targetSubscriber(cameraTargetTopic, targetFifo, "cameraTargetSub");
 
 Satellite::Satellite(const char* name, uint64_t periode) : Thread(name),
-		firePWM(PWM_IDX00),pwmGPIO(GPIO_073){
+		firePWM(PWM_IDX00),pwmGPIO(GPIO_073),tempValue(0){
 	this->periode = periode;
 	pwmGPIO.init(false,1,0);
 	firePWM.init(50,100);
@@ -73,6 +74,19 @@ void Satellite::handleModePeriodic(void){
 		motorSpeedTopic.publish(tempValue);
 		break;
 	case MISION:
+		RawVector2D tempVector2D;
+		targetFifo.get(tempVector2D);
+		if(tempVector2D.x>0) {
+			rotPID.setDestinationRotation(((60-tempVector2D.x)/60.0));
+		}
+
+		if((tempVector2D.x>55)&&(tempVector2D.x<65)) {
+			fireNet();
+		}
+
+		rotPID.run();
+		tempValue = rotPID.currentOutput();
+		motorSpeedTopic.publish(tempValue);
 
 		break;
 	}
@@ -99,7 +113,7 @@ void Satellite::setMode(SkyNetMode newMode){
 /* Camera mission mode */
 void Satellite::sendPicture(void){
 	if(mode == MISION){
-		camera.sendPicture(ch.getUart());
+		camera.sendPicture();
 	}
 }
 
@@ -132,6 +146,7 @@ void Satellite::switchMode(void){
 		break;
 	case MISION:
 		camera.turnOn();
+		rotPID.setDestinationRotation(0.3); //TODO: Find right Rot Speed
 		break;
 	}
 	xprintf("switched to mode %d\n", mode);
@@ -160,6 +175,9 @@ void Satellite::setAnglePIDConst(PIDConstant select, float val){
 
 void Satellite::fireNet() {
 	if(mode == MISION){
+		HAL_GPIO fireLED(GPIO_062);
+		fireLED.init(true);
+		fireLED.setPins(1);
 		firePWM.write(11);
 	}
 }

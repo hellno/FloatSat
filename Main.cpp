@@ -31,7 +31,7 @@ IMU imu("IMU", 100 * MILLISECONDS);
 LightSensor ls("LightSensor", &light_i2c, STD_PERIOD);
 MotorThread mt("motorThread");
 
-Camera camera("Camera");
+Camera camera("Camera", ch.getUart());
 
 TM tm("tmHandler", 20 * MILLISECONDS);
 TC tc("tcHandler", &imu, &ls, &mt, &camera);

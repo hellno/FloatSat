@@ -13,12 +13,13 @@ Topic<RawVector2D> cameraTargetTopic(-1, "camera target");
 
 extern TM tm;
 
-Camera::Camera(const char* name) :
+Camera::Camera(const char* name, HAL_UART uart) :
 		Thread(name),
 		dcmi(IMAGESIZE, (uint32_t) DCMI_Buffer, FRAMERATE, CAPTUREMODE),
 		ledo(GPIO_061),
 		reset(GPIO_010),
-		power(GPIO_033) {
+		power(GPIO_033),
+		tmUart(uart){
 		active = false;
 		processData = false;
 }
@@ -75,16 +76,8 @@ void Camera::init() {
 	xprintf("Done with cam init!\n");
 }
 
-void Camera::sendPicture(HAL_UART uart) {
-	tm.turnOff();
-	char tmpVal[4];
-	uart.write("CAMERA", 6);
-	for (int i = 0; i < IMAGESIZE; i += 2) {
-		sprintf(tmpVal, "%03u", DCMI_Buffer[i]);
-		uart.write(tmpVal,4);
-		while(!uart.isWriteFinished()) {}
-	}
-	uart.write("CAMEND", 6);
+void Camera::sendPicture() {
+	sendPic = true;
 	//tm.turnOn();
 }
 
@@ -120,7 +113,7 @@ void Camera::DetectSatellite() {
 				//xprintf("X: %d, Y: %d\n",(int)DCMI_Buffer[2*x + WIDTH*y], (int)DCMI_Buffer[2*x + WIDTH*y]);
 				//xprintf("X Sum-up: %d, Y Sum-up: %d\n", horizontalLine[x], verticalLine[y]);
 				//xprintf("x: %d, y: %d\n", x,y);
-				//DCMI_Buffer[2 * x + 2 * y * WIDTH] = 255;
+				DCMI_Buffer[2 * x + 2 * y * WIDTH] = 255;
 			} else {
 				//DCMI_Buffer[2 * x + 2 * y * WIDTH] = 0;
 			}
@@ -140,6 +133,7 @@ void Camera::DetectSatellite() {
 		sum2 += horizontalLine[meanWidth];
 		meanWidth++;
 	}
+//	xprintf("Horizontal sum 1: %d, sum 2: %d, meanWidth: %d\n", sum1, sum2, meanWidth);
 
 	sum1 = 0;
 	sum2 = 0;
@@ -153,10 +147,12 @@ void Camera::DetectSatellite() {
 		sum2 += verticalLine[meanHeight];
 		meanHeight++;
 	}
+//	xprintf("Vertical sum 1: %d, sum 2: %d meanHeight: %d\n", sum1, sum2, meanHeight);
 
-	target.x = meanWidth;
-	target.y = meanHeight;
+	target.y = meanWidth;
+	target.x = meanHeight;
 	cameraTargetTopic.publish(target);
+	xprintf("Target: x:%d, y:%d\n", target.x, target.y);
 	// -----------------------*/
 }
 
@@ -167,15 +163,30 @@ void Camera::ProcessData() {
 void Camera::run() {
 
 	while (1) {
-		if(processData){
-			processData=false;
+		if (processData) {
+		if (sendPic) {
+			tm.turnOff();
+			char tmpVal[4];
+			tmUart.write("CAMERA", 6);
+			for (int i = 0; i < IMAGESIZE; i += 2) {
+				sprintf(tmpVal, "%03u", DCMI_Buffer[i]);
+				tmUart.write(tmpVal, 4);
+				while (!tmUart.isWriteFinished()) {
+				}
+			}
+			tmUart.write("CAMEND", 6);
+			sendPic = false;
+		}
+
+
+			processData = false;
 			DetectSatellite();
 
-			if(active) { // Continue Captureing/Processing if still active
+			if (active) { // Continue Captureing/Processing if still active
 				Capture();
 			}
 
-			suspendCallerUntil(NOW()+100*MILLISECONDS);
+			suspendCallerUntil(NOW()+200*MILLISECONDS);
 		}
 	}
 
