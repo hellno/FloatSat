@@ -128,12 +128,12 @@ void LightSensor::run(){
 				lux =  calculateLux(channel0_combined, channel1_combined);
 				lightTopic.publish(lux);
 
-				if (DBGOUT) xprintf("lux: %d\n", lux);
+//				if (DEBUG) xprintf("lux: %d\n", lux);
 
 			}else{
-				if (DBGOUT) {
-	//				xprintf("err@reading i2c sun registers\n");
-	//				xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
+				if (DEBUG) {
+					xprintf("err@reading i2c sun registers\n");
+					xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
 				}
 			}
 

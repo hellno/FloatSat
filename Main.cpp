@@ -24,7 +24,7 @@ static Application module01("FloatSat", 2001);
 
 HAL_UART uart_usb(UART_IDX3);
 HAL_UART uart_bt(UART_IDX2);
-HAL_I2C light_i2c(I2C_IDX1);
+HAL_I2C light_i2c(I2C_IDX3);
 HAL_I2C imuI2C(I2C_IDX2);
 HAL_ADC adc(ADC_IDX1);
 HAL_ADC solar_adc1(ADC_IDX2);

@@ -7,7 +7,7 @@
 
 #include "TM.h"
 
-#define FIFO_SIZE 3
+#define FIFO_SIZE 2
 
 Fifo<uint32_t, FIFO_SIZE> lightFifo;
 Fifo<Vector3D, FIFO_SIZE> gyroFifo;
@@ -113,23 +113,23 @@ void TM::sendHousekeepingData(void){
 	uint32_t tempInt;
 	float tempFloat;
 
-	/*
 	//LGHTSN
 	if(lightFifo.get(tempInt)){
 		sprintf(cs.param, "%.6s", "LGHTSN");
-		sprintf(cs.msg, "%.2f", tempInt);
+		sprintf(cs.msg, "%d", tempInt);
 		tmTopic.publish(cs);
 	}
+
 	//MAGDAT
 	if(magFifo.get(tempRawVector)){
 		sprintf(cs.param, "%.6s", "MAGDAT");
-		raw_vector_to_msg(&cs, &tempVector);
+		raw_vector_to_msg(&cs, &tempRawVector);
 		tmTopic.publish(cs);
 	}
 	//ACCDAT
 	if(accFifo.get(tempRawVector)){
 		sprintf(cs.param, "%.6s", "ACCDAT");
-		raw_vector_to_string(cs.msg, &tempVector);
+		raw_vector_to_string(cs.msg, &tempRawVector);
 		tmTopic.publish(cs);
 	}
 
@@ -139,7 +139,7 @@ void TM::sendHousekeepingData(void){
 		vector_to_string(cs.msg, &tempVector);
 		tmTopic.publish(cs);
 	}
-	*/
+
 
 	//YAWANG
 	if(yawAngleFifo.get(tempFloat)){
@@ -178,10 +178,11 @@ void TM::sendHousekeepingData(void){
 
 	//SOLPAC
 	if(solarpanelCurrentFifo.get(tempFloat)){
-		sprintf(cs.param, "%.6s", "SOLPAC");
+		sprintf(cs.param, "%.6s", "SOLPAI");
 		sprintf(cs.msg, "%.2f", tempFloat);
 		tmTopic.publish(cs);
 	}
+
 }
 
 void TM::setPeriode(uint64_t periode){
