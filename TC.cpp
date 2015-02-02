@@ -121,6 +121,8 @@ void TC::handlePacket(CommStruct *cs){
 			skyNet.camDetect();*/
 	} else if(paramIsEqualTo(cs, "SNDPIC")){ // CAM3: send picture
 		skyNet.sendPicture();
+	} else if(paramIsEqualTo(cs, "DPLSUN")){ // Deploy Sun Array
+		skyNet.deploySolarArray();
 	} else if(paramIsEqualTo(cs, "CALIBM")){ //[0,1] de/activate output of mag. calib values
 		if(msgIsEqualTo(cs, "1")){
 			imu->setMagCalibMode(true);

@@ -26,6 +26,7 @@ RotPID::RotPID(void){
 	I_factor = -1.04339;
 	D_factor = 62.3248;
 
+
 	integral = 0.0;
 	derivative = 0.0;
 	prevError = 0.0;

@@ -22,13 +22,16 @@ Fifo<bool, FIFO_SIZE> fireFifo;
 Subscriber fireSubscriber(cameraFireTopic, fireFifo, "cameraFireSub");
 
 Satellite::Satellite(const char* name, uint64_t periode) : Thread(name),
-		firePWM(PWM_IDX00),pwmGPIO(GPIO_073),tempValue(0){
+		firePWM(PWM_IDX00),pwmGPIO(GPIO_073),tempValue(0),burnwire(GPIO_078){
 	this->periode = periode;
 	pwmGPIO.init(false,1,0);
 	firePWM.init(50,100);
 	firePWM.write(4);
 	mode = STDNBY;
 	//tm.turnOff();
+
+	burnwire.init(true);
+	burnwire.setPins(0);
 
 	this->anglePID = AnglePID();
 	this->rotPID = RotPID();
@@ -166,7 +169,6 @@ SkyNetMode Satellite::getCurrentMode(void){
 	return mode;
 }
 
-
 void Satellite::setAnglePIDConst(PIDConstant select, float val){
 	switch(select){
 	case(P):
@@ -188,8 +190,14 @@ void Satellite::fireNet() {
 		HAL_GPIO fireLED(GPIO_062);
 		fireLED.init(true);
 		fireLED.setPins(1);
-		firePWM.write(11);
+		firePWM.write(10);
 	}
+}
+
+void Satellite::deploySolarArray() {
+	burnwire.setPins(1);
+	suspendCallerUntil(NOW()+3000*MILLISECONDS);
+	burnwire.setPins(0);
 }
 
 void Satellite::setRotPIDConst(PIDConstant select, float val){

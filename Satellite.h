@@ -21,6 +21,8 @@ private:
 	uint64_t periode;
 	SkyNetMode mode;
 
+	HAL_GPIO burnwire; // PE14
+
 	AnglePID anglePID;
 	RotPID rotPID;
 
@@ -42,6 +44,7 @@ public:
 	void camDetect(void);
 	void capturePicture(void);
 	void fireNet(void);
+	void deploySolarArray(void);
 };
 
 #endif /* SKYNET_SATELLITE_H_ */
