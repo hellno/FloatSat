@@ -25,9 +25,9 @@ RotPID::RotPID(void){
 	*/
 
 	/* 20 MS */
-	P_factor = -125.3574;
-	I_factor = -1.04339;
-	D_factor = 62.3248;
+	P_factor = -4.86;
+	I_factor = -81.70;
+	D_factor = 0.33791;
 
 
 	integral = 0.0;
@@ -42,9 +42,9 @@ void RotPID::run(void){
 	float error = tempVal.z - desRot;
 
 	if (fabs(error) > PID_ERROR_THRESHOLD) {
-		integral += error;
+		integral += error * period;
 	}
-	derivative = (error - prevError);
+	derivative = (error - prevError) / period;
 
 	P = P_factor * error;
 	I = I_factor * integral;

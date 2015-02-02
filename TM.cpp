@@ -81,7 +81,6 @@ void copyStringToMsg(char* str, CommStruct *cs){
 		*(tmpVal + i) = *(str+i);
 	}
 
-	//OLD strncpy(cs->msg, tmpVal, strlen(cs->msg));
 	strncpy(cs->msg, tmpVal, len);
 }
 
@@ -130,12 +129,6 @@ void TM::sendHousekeepingData(void){
 		raw_vector_to_msg(&cs, &tempRawVector);
 		tmTopic.publish(cs);
 	}
-	//ACCDAT
-	if(accFifo.get(tempRawVector)){
-		sprintf(cs.param, "%.6s", "ACCDAT");
-		raw_vector_to_string(cs.msg, &tempRawVector);
-		tmTopic.publish(cs);
-	}
 
 	//GYRDAT
 	if(gyroFifo.get(tempVector)){
@@ -179,6 +172,13 @@ void TM::sendHousekeepingData(void){
 		tmTopic.publish(cs);
 	}
 	*/
+	//ACCDAT
+	if(accFifo.get(tempRawVector)){
+		sprintf(cs.param, "%.6s", "ACCDAT");
+		raw_vector_to_string(cs.msg, &tempRawVector);
+		tmTopic.publish(cs);
+	}
+
 	//MOTSPD
 	if(motorSpeedFifo.get(temp16Int)){
 		sprintf(cs.param, "%.6s", "MOTSPD");

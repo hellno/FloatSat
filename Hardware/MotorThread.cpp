@@ -12,6 +12,7 @@ Topic<int16_t> motorSpeedTopic(-1, "motorSpeedTopic");
 
 Fifo<int16_t, 2> fifo;
 Subscriber nameNotImportant02(motorSpeedTopic, fifo, "motorSpeedSubscriber");
+int16_t tmp;
 
 MotorThread::MotorThread(const char* name) : Thread(name){
 }
@@ -28,18 +29,24 @@ void MotorThread::init(){
 
 void MotorThread::run(){
 	int16_t motorSpeed;
-
-	while(1){
-		suspendCallerUntil(NOW() + 20*MILLISECONDS);
-
-		if(fifo.get(motorSpeed)){
-			this->setMotorSpeed(motorSpeed);
-		}
-	}
+//
+//	while(1){
+//		suspendCallerUntil(NOW() + 20*MILLISECONDS);
+//
+//		if(fifo.get(motorSpeed)){
+//			this->setMotorSpeed(motorSpeed);
+//		}
+//	}
 }
 
 void MotorThread::setMotorSpeed(int16_t newMotorSpeed){
 	motor.setSpeed(newMotorSpeed);
-	motorSpeedTopic.publish(newMotorSpeed);
-	xprintf("new motspd: %d\n", newMotorSpeed);
+	tmp = motor.getSpeed();
+
+	motorSpeedTopic.publish(tmp);
+	xprintf("new motspd: %d\n", tmp);
+}
+
+int16_t MotorThread::getMotorSpeed(void){
+	return motor.getSpeed();
 }

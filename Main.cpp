@@ -36,10 +36,8 @@ LightSensor ls("LightSensor", &light_i2c, STD_PERIOD);
 MotorThread mt("motorThread");
 SolarPanel solarPanel("SolarPanel", STD_PERIOD, &adc);
 
-
 SunFinding sf("SunFinding");
 Camera camera("Camera", ch.getUart());
-
 
 TM tm("tmHandler", 20 * MILLISECONDS);
 TC tc("tcHandler", &imu, &ls, &mt, &camera);

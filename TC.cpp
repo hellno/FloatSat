@@ -49,7 +49,7 @@ void TC::handlePacket(CommStruct *cs){
 		//xprintf("len: p%d,m%d\n", strlen(cs->param), strlen(cs->msg));
 	}
 
-	if (paramIsEqualTo(cs, "MOTSPD")){ // [0,1000] set % of motorspeed
+	if (paramIsEqualTo(cs, "MOTSPD")){ // [0,1000] set motorspeed
 			mt->setMotorSpeed(atoi(cs->msg));
 	} else if (paramIsEqualTo(cs, "ECHOHO")) { // echo test
 		xprintf("ECHOHO(DBG)\n");

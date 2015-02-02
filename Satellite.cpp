@@ -46,6 +46,7 @@ Satellite::Satellite(const char* name, uint64_t periode) : Thread(name),
 
 	anglePID.setPeriod(periode / 1000);
 	rotPID.setPeriod(periode / 1000);
+	xprintf("PERIOD FOR CONTROLLE %d\n", periode / 1000);
 }
 
 void Satellite::init(void){

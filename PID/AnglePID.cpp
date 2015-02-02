@@ -24,10 +24,10 @@ AnglePID::AnglePID(void){
 	D_factor = 31.172;
 	*/
 
-	/* 10 ms */
-	P_factor = 132.31;
-	I_factor = 1.16;
-	D_factor = -62.32;
+	/* 20 ms */
+	P_factor = 33.45;
+	I_factor = 0.8021;
+	D_factor = -3.815;
 	period = 0.01;
 
 	integral = 0.0;
@@ -50,9 +50,9 @@ void AnglePID::run(void){
 		error += 360;
 	}
 	if (fabs(error) > PID_ERROR_THRESHOLD) {
-		integral += error;// * period;
+		integral += error * period;
 	}
-	derivative = (error - prevError);// / period;
+	derivative = (error - prevError) / period;
 
 	P = P_factor * error;
 	I = I_factor * integral;

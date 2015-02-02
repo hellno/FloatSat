@@ -20,6 +20,7 @@ public:
 	void init();
 	void run();
 	void setMotorSpeed(int16_t newMotorSpeed);
+	int16_t getMotorSpeed(void);
 };
 
 #endif /* MOTORTHREAD_H_ */

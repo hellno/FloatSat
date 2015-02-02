@@ -24,6 +24,8 @@
 
 #define SOLAR_PANEL_RESISTOR 1.0f
 
+#define MOTOR_SPEED_LIMIT 300
+
 extern bool DEBUG; //one-time status messages
 extern bool DBGOUT; //periodic, fast outputs
 
@@ -37,6 +39,7 @@ struct RawVector2D{
 	int16_t x;
 	int16_t y;
 };
+
 struct RawVector3D{
 	int16_t x;
 	int16_t y;

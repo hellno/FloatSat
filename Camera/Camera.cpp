@@ -51,6 +51,7 @@ void Camera::InitOV7670() {
 }
 
 void Camera::init() {
+
 	xprintf("starting cam init\n");
 	ledo.init(true);
 	reset.init(true);
