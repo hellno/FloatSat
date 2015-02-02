@@ -17,18 +17,11 @@ extern TM tm;
 Camera::Camera(const char* name, HAL_UART uart) :
 		Thread(name),
 		dcmi(IMAGESIZE, (uint32_t) DCMI_Buffer, FRAMERATE, CAPTUREMODE),
-<<<<<<< HEAD
-		ledg(GPIO_061), //PD13
+		ledo(GPIO_061), //PD13
 		reset(GPIO_010), //PA10
 		power(GPIO_033), //PC01
-		targetX(0), targetY(0) {
-=======
-		ledo(GPIO_061),
-		reset(GPIO_010),
-		power(GPIO_033),
 		tmUart(uart),
 		sendPic(false){
->>>>>>> origin/andy
 		active = false;
 		processData = false;
 }

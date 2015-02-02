@@ -18,13 +18,10 @@ Topic<float> pidOutputTopic(-1, "PID Output");
 #define FIFO_SIZE 3
 
 extern Camera camera;
-<<<<<<< HEAD
 extern SunFinding sf;
-
 float tempVal;
-int16_t tempValue;
-=======
->>>>>>> origin/andy
+
+
 
 Fifo<RawVector2D, FIFO_SIZE> targetFifo;
 Subscriber targetSubscriber(cameraTargetTopic, targetFifo, "cameraTargetSub");

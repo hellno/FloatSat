@@ -100,15 +100,13 @@ extern Topic<float> tempTopic;
 extern Topic<float> orientationTopic;
 extern Topic<float> yawAngTopic;
 extern Topic<RawVector2D> cameraTargetTopic;
-<<<<<<< HEAD
 extern Topic<float> batteryPercentageTopic;
 extern Topic<float> batteryVoltageTopic;
 extern Topic<float> solarpanelChargeTopic;
 extern Topic<float> pidErrorTopic;
 extern Topic<float> pidOutputTopic;
-=======
 extern Topic<bool> cameraFireTopic;
->>>>>>> origin/andy
+
 
 //TC
 extern Topic<CommStruct> tcTopic;
