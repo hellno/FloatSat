@@ -25,7 +25,7 @@
 #define USB_UART UART_IDX3
 
 #define WIDTH						160
-#define HEIGHT						120
+#define HEIGHT						121
 
 #define CAPTUREMODE					DCMI_CaptureMode_SnapShot
 #define FRAMERATE					DCMI_CaptureRate_All_Frame
@@ -33,36 +33,41 @@
 //#define FRAMERATE					DCMI_CaptureRate_1of4_Frame
 #define DCMI_DR_ADDRESS      		0x50050028
 #define IMAGESIZE					(HEIGHT*WIDTH*2)
-#define THRESHOLD					254
+#define THRESHOLD					200
+
+#define Q1							0.25f
+#define HALF						0.5f
+#define Q3							0.75f
 
 
 class Camera: public Thread {
 private:
 	Dcmi dcmi;
 	Sccb sccb;
-	HAL_GPIO ledg;
+	HAL_GPIO ledo;
 	HAL_GPIO reset;
 	HAL_GPIO power;
 
 	uint8_t DCMI_Buffer[IMAGESIZE];
 
-	int targetX;
-	int targetY;
 	RawVector2D target;
+	HAL_UART tmUart;
 
 	bool active;
+	bool processData;
+	bool sendPic;
 
 	void InitOV7670();
 	void delayx(unsigned int ms);
+	void Capture();
+	void DetectSatellite();
 public:
-	Camera(const char* name);
+	Camera(const char* name, HAL_UART uart);
 	void init();
 	void run();
 	uint8_t* getPicture();
 	void sendPicture();
-	void Capture();
-
-	void DetectSatellite();
+	void ProcessData();
 	void turnOn(void);
 	void turnOff(void);
 };

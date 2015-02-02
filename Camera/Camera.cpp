@@ -7,17 +7,30 @@
  */
 
 #include "Camera.h"
+#include "../TM.h"
 
 Topic<RawVector2D> cameraTargetTopic(-1, "camera target");
+Topic<bool> cameraFireTopic(-1, "camera fire");
 
-Camera::Camera(const char* name) :
+extern TM tm;
+
+Camera::Camera(const char* name, HAL_UART uart) :
 		Thread(name),
 		dcmi(IMAGESIZE, (uint32_t) DCMI_Buffer, FRAMERATE, CAPTUREMODE),
+<<<<<<< HEAD
 		ledg(GPIO_061), //PD13
 		reset(GPIO_010), //PA10
 		power(GPIO_033), //PC01
 		targetX(0), targetY(0) {
+=======
+		ledo(GPIO_061),
+		reset(GPIO_010),
+		power(GPIO_033),
+		tmUart(uart),
+		sendPic(false){
+>>>>>>> origin/andy
 		active = false;
+		processData = false;
 }
 
 void Camera::InitOV7670() {
@@ -46,7 +59,7 @@ void Camera::InitOV7670() {
 
 void Camera::init() {
 	xprintf("starting cam init\n");
-	ledg.init(true);
+	ledo.init(true);
 	reset.init(true);
 	power.init(true);
 	reset.setPins(1);
@@ -73,12 +86,8 @@ void Camera::init() {
 }
 
 void Camera::sendPicture() {
-	xprintf("F");
-	xprintf("%d;", target.x);
-	xprintf("%d;", target.y);
-	for (int i = 0; i < IMAGESIZE; i += 2) {
-		xprintf("%u;", DCMI_Buffer[i]);
-	}
+	sendPic = true;
+	//tm.turnOn();
 }
 
 uint8_t* Camera::getPicture() {
@@ -113,7 +122,7 @@ void Camera::DetectSatellite() {
 				//xprintf("X: %d, Y: %d\n",(int)DCMI_Buffer[2*x + WIDTH*y], (int)DCMI_Buffer[2*x + WIDTH*y]);
 				//xprintf("X Sum-up: %d, Y Sum-up: %d\n", horizontalLine[x], verticalLine[y]);
 				//xprintf("x: %d, y: %d\n", x,y);
-				//DCMI_Buffer[2 * x + 2 * y * WIDTH] = 255;
+				DCMI_Buffer[2 * x + 2 * y * WIDTH] = 255;
 			} else {
 				//DCMI_Buffer[2 * x + 2 * y * WIDTH] = 0;
 			}
@@ -121,7 +130,7 @@ void Camera::DetectSatellite() {
 	}
 
 	// Optimize here ------
-	long sum1 = 0;
+	/*long sum1 = 0;
 	long sum2 = 0;
 	//  xprintf("Horizontal Line:\n");
 	for (int x = 0; x < WIDTH; x++) {
@@ -133,6 +142,7 @@ void Camera::DetectSatellite() {
 		sum2 += horizontalLine[meanWidth];
 		meanWidth++;
 	}
+//	xprintf("Horizontal sum 1: %d, sum 2: %d, meanWidth: %d\n", sum1, sum2, meanWidth);
 
 	sum1 = 0;
 	sum2 = 0;
@@ -145,42 +155,102 @@ void Camera::DetectSatellite() {
 	while (sum2 < (int) ((float) sum1 / 2.0)) {
 		sum2 += verticalLine[meanHeight];
 		meanHeight++;
-	}
+	}*/
+//	xprintf("Vertical sum 1: %d, sum 2: %d meanHeight: %d\n", sum1, sum2, meanHeight);
 
-//	targetX = meanWidth;
-//	targetY = meanHeight;
+    // Optimize here ------
+    int counter = 0;
+    int sum1 = 0;
+    int sum2 = 0;
+    for(int x = 0; x < WIDTH; x++) {
+        sum1 += horizontalLine[x];
+    }
+    int first_quarter = 0;
+    int third_quarter = 0;
+    int targetX = 0;
+    int spanX = 0;
+    while(sum2<Q3*sum1) {
+        sum2 += horizontalLine[counter];
+        counter++;
+        if((Q1*sum1<sum2)&&(first_quarter==0)){
+            first_quarter = counter;
+        }
+        if((HALF*sum1<sum2)&&(targetX==0)) {
+            targetX = counter;
+        }
+        if((Q3*sum1<sum2)&&(third_quarter==0)) {
+            third_quarter = counter;
+        }
+    }
+    spanX = third_quarter - first_quarter;
 
-	target.x = meanWidth;
-	target.y = meanHeight;
+    counter = 0;
+    sum1 = 0;
+    sum2 = 0;
+    for(int y = 0; y < HEIGHT; y++) {
+        sum1 += verticalLine[y];
+    }
+    first_quarter = 0;
+    third_quarter = 0;
+    int targetY = 0;
+    int spanY = 0;
+    while(sum2<Q3*sum1) {
+        sum2 += verticalLine[counter];
+        counter++;
+        if((Q1*sum1<sum2)&&(first_quarter==0)){
+            first_quarter = counter;
+        }
+        if((HALF*sum1<sum2)&&(targetY==0)) {
+            targetY = counter;
+        }
+        if((Q3*sum1<sum2)&&(third_quarter==0)) {
+            third_quarter = counter;
+        }
+    }
+    spanY = third_quarter - first_quarter;
+    // -----------------------
+
+    bool fireAngle = spanX>2*spanY;
+	target.y = targetX;
+	target.x = targetY;
 	cameraTargetTopic.publish(target);
+	cameraFireTopic.publish(fireAngle);
+	xprintf("Target: x:%d, y:%d\n", target.x, target.y);
+	xprintf("Fire: %d", fireAngle);
 	// -----------------------*/
+}
+
+void Camera::ProcessData() {
+	processData = true;
 }
 
 void Camera::run() {
 
 	while (1) {
-		if(active){
-			suspendCallerUntil(NOW()+2000*MILLISECONDS);
-//			if (ledg.readPins() == 0) {
-//				ledg.setPins(1);
-//				xprintf("capture\n");
-//				Capture();
-//				xprintf("sending\n");
-//			} else {
-//
-//				// Test Case: Send Pic when target detected, reset target afterwards!
-//				//DetectSatellite();
-//				sendPicture();
-//
-//			if((targetX>0)&&(targetY>0)){
-//				sendPicture();
-//				targetX = 0;
-//				targetY = 0;
-//			}
-//
-//
-//				ledg.setPins(0);
-//			}
+		if (processData) {
+		if (sendPic) {
+			tm.turnOff();
+			char tmpVal[4];
+			tmUart.write("CAMERA", 6);
+			for (int i = 0; i < IMAGESIZE; i += 2) {
+				sprintf(tmpVal, "%03u", DCMI_Buffer[i]);
+				tmUart.write(tmpVal, 4);
+				while (!tmUart.isWriteFinished()) {
+				}
+			}
+			tmUart.write("CAMEND", 6);
+			sendPic = false;
+		}
+
+
+			processData = false;
+			DetectSatellite();
+
+			if (active) { // Continue Captureing/Processing if still active
+				Capture();
+			}
+
+			suspendCallerUntil(NOW()+200*MILLISECONDS);
 		}
 	}
 
@@ -197,8 +267,13 @@ void Camera::delayx(unsigned int ms) {
 
 void Camera::turnOn(void){
 	this->active = true;
+	//ledo.setPins(1);
+	xprintf("Cam active\n");
+	Capture();
 }
 void Camera::turnOff(void){
 	this->active = false;
+	xprintf("Cam inactive\n");
+	//ledo.setPins(0);
 }
 /***********************************************************************/

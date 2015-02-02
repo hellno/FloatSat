@@ -99,6 +99,8 @@ void TC::handlePacket(CommStruct *cs){
 		skyNet.setMode(SUNFIN);
 	} else if(paramIsEqualTo(cs, "MISION")){ // mission mode
 		skyNet.setMode(MISION);
+	} else if(paramIsEqualTo(cs, "FIRENT")) { // fire Net
+		skyNet.fireNet();
 	/* Angle PID constants */
 	} else if(paramIsEqualTo(cs, "ANGCSP")){ // P const of angle PID controller
 			skyNet.setAnglePIDConst(P, atof(cs->msg));
@@ -113,12 +115,14 @@ void TC::handlePacket(CommStruct *cs){
 		skyNet.setRotPIDConst(I, atof(cs->msg));
 	} else if(paramIsEqualTo(cs, "ROTCSD")){ // D const of rot PID controller
 		skyNet.setRotPIDConst(D, atof(cs->msg));
-	} else if(paramIsEqualTo(cs, "CAPPIC")){ // CAM1: capture picture
+	/*} else if(paramIsEqualTo(cs, "CAPPIC")){ // CAM1: capture picture
 		skyNet.capturePicture();
 	} else if(paramIsEqualTo(cs, "DETECT")){ // CAM2: detect target
-			skyNet.camDetect();
+			skyNet.camDetect();*/
 	} else if(paramIsEqualTo(cs, "SNDPIC")){ // CAM3: send picture
 		skyNet.sendPicture();
+	} else if(paramIsEqualTo(cs, "DPLSUN")){ // Deploy Sun Array
+		skyNet.deploySolarArray();
 	} else if(paramIsEqualTo(cs, "CALIBM")){ //[0,1] de/activate output of mag. calib values
 		if(msgIsEqualTo(cs, "1")){
 			imu->setMagCalibMode(true);

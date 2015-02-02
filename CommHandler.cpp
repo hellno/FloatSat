@@ -58,6 +58,10 @@ void CommHandler::run(void) {
 	}
 }
 
+HAL_UART CommHandler::getUart() {
+	return *uart;
+}
+
 bool CommHandler::parseStringToPacket(char * str, int size, CommStruct* cs) {
 //	if (size < 7 && strlen(str) < 7)
 //		return false;

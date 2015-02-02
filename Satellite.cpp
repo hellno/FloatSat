@@ -15,18 +15,34 @@
 Topic<float> pidErrorTopic(-1, "PID Error");
 Topic<float> pidOutputTopic(-1, "PID Output");
 
-extern TC tc;
-extern TM tm;
+#define FIFO_SIZE 3
+
 extern Camera camera;
+<<<<<<< HEAD
 extern SunFinding sf;
 
 float tempVal;
 int16_t tempValue;
+=======
+>>>>>>> origin/andy
 
-Satellite::Satellite(const char* name, uint64_t periode) : Thread(name){
+Fifo<RawVector2D, FIFO_SIZE> targetFifo;
+Subscriber targetSubscriber(cameraTargetTopic, targetFifo, "cameraTargetSub");
+
+Fifo<bool, FIFO_SIZE> fireFifo;
+Subscriber fireSubscriber(cameraFireTopic, fireFifo, "cameraFireSub");
+
+Satellite::Satellite(const char* name, uint64_t periode) : Thread(name),
+		firePWM(PWM_IDX00),pwmGPIO(GPIO_073),tempValue(0),burnwire(GPIO_078){
 	this->periode = periode;
-
+	pwmGPIO.init(false,1,0);
+	firePWM.init(50,100);
+	firePWM.write(4);
 	mode = STDNBY;
+	//tm.turnOff();
+
+	burnwire.init(true);
+	burnwire.setPins(0);
 
 	this->anglePID = AnglePID();
 	this->rotPID = RotPID();
@@ -84,6 +100,27 @@ void Satellite::handleModePeriodic(void){
 		pidErrorTopic.publish(tempVal);
 		break;
 	case MISION:
+		RawVector2D tempVector2D;
+		targetFifo.get(tempVector2D);
+		bool isInFireAngle;
+		fireFifo.get(isInFireAngle);
+
+		if(tempVector2D.x>0) {
+			rotPID.setDestinationRotation(((60-tempVector2D.x)/60.0));
+		}
+
+		if((tempVector2D.x>55)&&(tempVector2D.x<65)) {
+			HAL_GPIO fireLED(GPIO_063);
+			fireLED.init(true);
+			fireLED.setPins(1);
+			if(isInFireAngle){
+				fireNet();
+			}
+		}
+
+		rotPID.run();
+		tempValue = rotPID.currentOutput();
+		motorSpeedTopic.publish(tempValue);
 
 		break;
 	}
@@ -114,7 +151,7 @@ void Satellite::sendPicture(void){
 	}
 }
 
-void Satellite::camDetect(void){
+/*void Satellite::camDetect(void){
 	if(mode == MISION){
 		camera.DetectSatellite();
 	}
@@ -124,15 +161,13 @@ void Satellite::capturePicture(void){
 	if(mode == MISION){
 		camera.Capture();
 	}
-}
+}*/
 
 
 void Satellite::switchMode(void){
 	switch(mode){
 	case STDNBY:
-		tm.turnOn();
 		camera.turnOff();
-
 		break;
 	case ROTMOD:
 
@@ -144,8 +179,8 @@ void Satellite::switchMode(void){
 		sf.turnOn();
 		break;
 	case MISION:
-		tm.turnOff();
 		camera.turnOn();
+		rotPID.setDestinationRotation(0.3); //TODO: Find right Rot Speed
 		break;
 	}
 	xprintf("switched to mode %d\n", mode);
@@ -154,7 +189,6 @@ void Satellite::switchMode(void){
 SkyNetMode Satellite::getCurrentMode(void){
 	return mode;
 }
-
 
 void Satellite::setAnglePIDConst(PIDConstant select, float val){
 	switch(select){
@@ -170,6 +204,21 @@ void Satellite::setAnglePIDConst(PIDConstant select, float val){
 	default:
 		return;
 	}
+}
+
+void Satellite::fireNet() {
+	if(mode == MISION){
+		HAL_GPIO fireLED(GPIO_062);
+		fireLED.init(true);
+		fireLED.setPins(1);
+		firePWM.write(10);
+	}
+}
+
+void Satellite::deploySolarArray() {
+	burnwire.setPins(1);
+	suspendCallerUntil(NOW()+3000*MILLISECONDS);
+	burnwire.setPins(0);
 }
 
 void Satellite::setRotPIDConst(PIDConstant select, float val){

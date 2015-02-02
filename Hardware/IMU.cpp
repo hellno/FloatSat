@@ -199,7 +199,7 @@ void IMU::run(){
 		}
 		//xprintf("GYRANG: %f (prd:%f)\n", gyroZValue, periode / (MILLISECONDS * 1000.0));
 
-		yawAngTopic.publish(gyroZValue);
+		//yawAngTopic.publish(gyroZValue);
 		/*
 		orientation = acc.getOrientation();
 		temp = acc.getTemp();
