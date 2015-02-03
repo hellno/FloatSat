@@ -135,12 +135,13 @@ void LightSensor::run(){
 
 //				if (DEBUG) xprintf("lux: %d\n", lux);
 
-			}else{
+			}/*else{
+				init();
 				if (DEBUG) {
 					xprintf("err@reading i2c sun registers\n");
 					xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
 				}
-			}
+			}*/
 
 		}
 	}

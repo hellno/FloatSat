@@ -21,6 +21,8 @@
 #include "Hardware/SolarPanel.h"
 #include "SunFinding.h"
 
+#include "tst/TestClass.h"
+
 static Application module01("FloatSat", 2001);
 
 HAL_UART uart_usb(UART_IDX3);
@@ -31,15 +33,19 @@ HAL_ADC adc(ADC_IDX1);
 
 CommHandler ch("CommHandler", &uart_bt, 20 * MILLISECONDS);
 
+Camera camera("Camera", ch.getUart());
+
 IMU imu("IMU", 100 * MILLISECONDS);
 LightSensor ls("LightSensor", &light_i2c, STD_PERIOD);
 MotorThread mt("motorThread");
 SolarPanel solarPanel("SolarPanel", STD_PERIOD, &adc);
 
 SunFinding sf("SunFinding");
-Camera camera("Camera", ch.getUart());
+
 
 TM tm("tmHandler", 20 * MILLISECONDS);
 TC tc("tcHandler", &imu, &ls, &mt, &camera);
 
 Satellite skyNet("SkyNet", 10 * MILLISECONDS);
+
+//TestClass tst("Test");

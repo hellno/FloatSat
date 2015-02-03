@@ -17,7 +17,7 @@ Fifo<float, FIFO_SIZE> tempFifo;
 Fifo<float, FIFO_SIZE> orientationFifo;
 Fifo<float, FIFO_SIZE> yawAngleFifo;
 Fifo<RawVector2D, FIFO_SIZE> cameraTargetFifo;
-Fifo<float, FIFO_SIZE> batVolFifo;
+Fifo<float, FIFO_SIZE> spVolFifo;
 Fifo<int16_t, FIFO_SIZE> motorSpeedFifo;
 Fifo<float, FIFO_SIZE> pidErrorFifo;
 Fifo<float, FIFO_SIZE> pidOutputFifo;
@@ -31,7 +31,7 @@ Subscriber tempSubscriber(tempTopic, tempFifo, "tempSub");
 Subscriber orientationSubscriber(orientationTopic, orientationFifo, "orientationSub");
 Subscriber yawAngleSubscriber(yawAngTopic, yawAngleFifo, "yawAngleSub");
 Subscriber cameraTargetSubscriber(cameraTargetTopic, cameraTargetFifo, "cameraTargetSub");
-Subscriber batteryVoltageSubscriber(batteryVoltageTopic, batVolFifo, "batteryVoltageSub");
+Subscriber solarpanelVoltageSubscriber(solarpanelVoltageTopic, spVolFifo, "batteryVoltageSub");
 Subscriber pidErrorSubscriber(pidErrorTopic, pidErrorFifo, "pidErrorSub");
 Subscriber pidOutputSubscriber(pidOutputTopic, pidOutputFifo, "pidOutputSub");
 
@@ -115,7 +115,6 @@ void TM::sendHousekeepingData(void){
 	int16_t temp16Int;
 	float tempFloat;
 
-	/*
 	//LGHTSN
 	if(lightFifo.get(tempInt)){
 		sprintf(cs.param, "%.6s", "LGHTSN");
@@ -127,6 +126,20 @@ void TM::sendHousekeepingData(void){
 	if(magFifo.get(tempRawVector)){
 		sprintf(cs.param, "%.6s", "MAGDAT");
 		raw_vector_to_msg(&cs, &tempRawVector);
+		tmTopic.publish(cs);
+	}
+
+	//SPLVOL
+	if(spVolFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "SPLVOL");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
+
+	//TARGET
+	if(cameraTargetFifo.get(tempVector2D)){
+		sprintf(cs.param, "%.6s", "TARGET");
+		raw_vector_to_string(cs.msg, &tempVector2D);
 		tmTopic.publish(cs);
 	}
 
@@ -144,34 +157,6 @@ void TM::sendHousekeepingData(void){
 		tmTopic.publish(cs);
 	}
 
-	//TARGET
-	if(cameraTargetFifo.get(tempVector2D)){
-		sprintf(cs.param, "%.6s", "TARGET");
-		raw_vector_to_string(cs.msg, &tempVector2D);
-		tmTopic.publish(cs);
-	}
-
-	//BATVOL
-	if(batVolFifo.get(tempFloat)){
-		sprintf(cs.param, "%.6s", "BATVOL");
-		sprintf(cs.msg, "%.2f", tempFloat);
-		tmTopic.publish(cs);
-	}
-
-	//BATPCT
-	if(batPercFifo.get(tempFloat)){
-		sprintf(cs.param, "%.6s", "BATPCT");
-		sprintf(cs.msg, "%.2f", tempFloat);
-		tmTopic.publish(cs);
-	}
-
-	//SOLPAC
-	if(solarpanelCurrentFifo.get(tempFloat)){
-		sprintf(cs.param, "%.6s", "SOLPAI");
-		sprintf(cs.msg, "%.2f", tempFloat);
-		tmTopic.publish(cs);
-	}
-	*/
 	//ACCDAT
 	if(accFifo.get(tempRawVector)){
 		sprintf(cs.param, "%.6s", "ACCDAT");

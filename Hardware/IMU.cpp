@@ -199,18 +199,16 @@ void IMU::run(){
 		}
 		//xprintf("GYRANG: %f (prd:%f)\n", gyroZValue, periode / (MILLISECONDS * 1000.0));
 
-		//yawAngTopic.publish(gyroZValue);
-		/*
-		orientation = acc.getOrientation();
+		yawAngTopic.publish(gyroZValue);
+
+//		orientation = acc.getOrientation();
+//		orientationTopic.publish(orientation);
 		temp = acc.getTemp();
 
 		accTopic.publish(accRawData);
 		gyroTopic.publish(gyroRawData);
 		magTopic.publish(magRawData);
-		orientationTopic.publish(orientation);
 		tempTopic.publish(temp);
-
-		*/
 
 		if(DBGOUT){
 			xprintf("GYRDAT%d,%d,%d\n", gyroRawData.x, gyroRawData.y, gyroRawData.z);

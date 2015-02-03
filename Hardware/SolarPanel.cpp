@@ -7,7 +7,7 @@
 
 #include "SolarPanel.h"
 
-Topic<float> batteryVoltageTopic(-1, "BatteryVoltageTopic");
+Topic<float> solarpanelVoltageTopic(-1, "BatteryVoltageTopic");
 
 SolarPanel::SolarPanel(const char* name, uint64_t periode, HAL_ADC *adc) : Thread(name){
 	this->periode = periode;
@@ -16,7 +16,7 @@ SolarPanel::SolarPanel(const char* name, uint64_t periode, HAL_ADC *adc) : Threa
 }
 
 void SolarPanel::init(void){
-	adc->init(BATTERY_CHANNEL);
+	adc->init(SOLPAN_CHANNEL);
 }
 
 void SolarPanel::run(void){
@@ -28,13 +28,13 @@ void SolarPanel::run(void){
 
 			tempVoltage = getSolarPanelVoltage();
 
-			batteryVoltageTopic.publish(tempVoltage);
+			solarpanelVoltageTopic.publish(tempVoltage);
 		}
 	}
 }
 
 int32_t SolarPanel::getSolarPanelRawValue(void){
-	return adc->read(BATTERY_CHANNEL);
+	return adc->read(SOLPAN_CHANNEL);
 }
 
 float SolarPanel::getSolarPanelPercent(void){

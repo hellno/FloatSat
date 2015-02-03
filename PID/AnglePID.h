@@ -13,6 +13,8 @@
 
 class AnglePID {
 private:
+	long long lastTime;
+
 	float P;
 	float I;
 	float D;

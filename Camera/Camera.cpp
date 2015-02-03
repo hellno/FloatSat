@@ -105,7 +105,7 @@ void Camera::DetectSatellite() {
 		verticalLine[y] = 0;
 	}
 
-	int point;
+	int pixel = 0;
 	// Sum up Picture to Lines
 	// for(int i = 0; i < IMAGESIZE; i+=2) {
 	for (int y = 0; y < HEIGHT; y++) {
@@ -113,14 +113,21 @@ void Camera::DetectSatellite() {
 			if ((int) DCMI_Buffer[2 * x + 2 * y * WIDTH] > THRESHOLD) {
 				horizontalLine[x] += (int) DCMI_Buffer[2 * x + 2 * WIDTH * y];
 				verticalLine[y] += (int) DCMI_Buffer[2 * x + 2 * WIDTH * y];
+				pixel++;
 				//xprintf("X: %d, Y: %d\n",(int)DCMI_Buffer[2*x + WIDTH*y], (int)DCMI_Buffer[2*x + WIDTH*y]);
 				//xprintf("X Sum-up: %d, Y Sum-up: %d\n", horizontalLine[x], verticalLine[y]);
 				//xprintf("x: %d, y: %d\n", x,y);
-				DCMI_Buffer[2 * x + 2 * y * WIDTH] = 255;
+				//DCMI_Buffer[2 * x + 2 * y * WIDTH] = 255;
 			} else {
 				//DCMI_Buffer[2 * x + 2 * y * WIDTH] = 0;
 			}
 		}
+	}
+
+	if(pixel<80) {
+		target.x=0;
+		target.y=0;
+		return;
 	}
 
 	// Optimize here ------
@@ -210,7 +217,7 @@ void Camera::DetectSatellite() {
 	cameraTargetTopic.publish(target);
 	cameraFireTopic.publish(fireAngle);
 	xprintf("Target: x:%d, y:%d\n", target.x, target.y);
-	xprintf("Fire: %d", fireAngle);
+	xprintf("Fire: %d\n", fireAngle);
 	// -----------------------*/
 }
 
@@ -222,23 +229,24 @@ void Camera::run() {
 
 	while (1) {
 		if (processData) {
-		if (sendPic) {
-			tm.turnOff();
-			char tmpVal[4];
-			tmUart.write("CAMERA", 6);
-			for (int i = 0; i < IMAGESIZE; i += 2) {
-				sprintf(tmpVal, "%03u", DCMI_Buffer[i]);
-				tmUart.write(tmpVal, 4);
-				while (!tmUart.isWriteFinished()) {
-				}
-			}
-			tmUart.write("CAMEND", 6);
-			sendPic = false;
-		}
 
 
 			processData = false;
 			DetectSatellite();
+
+			if (sendPic) {
+				tm.turnOff();
+				char tmpVal[4];
+				tmUart.write("CAMERA", 6);
+				for (int i = 0; i < IMAGESIZE; i += 2) {
+					sprintf(tmpVal, "%03u", DCMI_Buffer[i]);
+					tmUart.write(tmpVal, 4);
+					while (!tmUart.isWriteFinished()) {
+					}
+				}
+				tmUart.write("CAMEND", 6);
+				sendPic = false;
+			}
 
 			if (active) { // Continue Captureing/Processing if still active
 				Capture();

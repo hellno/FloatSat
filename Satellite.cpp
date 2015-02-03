@@ -21,15 +21,13 @@ extern Camera camera;
 extern SunFinding sf;
 float tempVal;
 
-
-
 Fifo<RawVector2D, FIFO_SIZE> targetFifo;
 Subscriber targetSubscriber(cameraTargetTopic, targetFifo, "cameraTargetSub");
 
 Fifo<bool, FIFO_SIZE> fireFifo;
 Subscriber fireSubscriber(cameraFireTopic, fireFifo, "cameraFireSub");
 
-Satellite::Satellite(const char* name, uint64_t periode) : Thread(name),
+Satellite::Satellite(const char* name, uint64_t periode) : Thread(name,1000),
 		firePWM(PWM_IDX00),pwmGPIO(GPIO_073),tempValue(0),burnwire(GPIO_078){
 	this->periode = periode;
 	pwmGPIO.init(false,1,0);
@@ -44,9 +42,9 @@ Satellite::Satellite(const char* name, uint64_t periode) : Thread(name),
 	this->anglePID = AnglePID();
 	this->rotPID = RotPID();
 
-	anglePID.setPeriod(periode / 1000);
-	rotPID.setPeriod(periode / 1000);
-	xprintf("PERIOD FOR CONTROLLE %d\n", periode / 1000);
+	//anglePID.setPeriod(0.01);/// 1000);
+	//rotPID.setPeriod(0.01);// / 1000);
+	//xprintf("PERIOD FOR CONTROLLE %d\n", periode / 1000);
 }
 
 void Satellite::init(void){
@@ -103,11 +101,11 @@ void Satellite::handleModePeriodic(void){
 		bool isInFireAngle;
 		fireFifo.get(isInFireAngle);
 
-		if(tempVector2D.x>0) {
+	/*	if(tempVector2D.x>0) {
 			rotPID.setDestinationRotation(((60-tempVector2D.x)/60.0));
-		}
+		}*/
 
-		if((tempVector2D.x>55)&&(tempVector2D.x<65)) {
+		if((tempVector2D.x>50)&&(tempVector2D.x<70)) {
 			HAL_GPIO fireLED(GPIO_063);
 			fireLED.init(true);
 			fireLED.setPins(1);
@@ -116,9 +114,9 @@ void Satellite::handleModePeriodic(void){
 			}
 		}
 
-		rotPID.run();
-		tempValue = rotPID.currentOutput();
-		motorSpeedTopic.publish(tempValue);
+		//rotPID.run();
+		//tempValue = rotPID.currentOutput();
+		//motorSpeedTopic.publish(tempValue);
 
 		break;
 	}
