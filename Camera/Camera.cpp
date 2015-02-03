@@ -1,8 +1,8 @@
 /*
- * Template.cpp
+ * Camera.cpp
  *
  * Created on: 25.06.2014
- * Author: Atheel Redah
+ * Author: Andreas Schartel
  *
  */
 
@@ -107,59 +107,26 @@ void Camera::DetectSatellite() {
 
 	int pixel = 0;
 	// Sum up Picture to Lines
-	// for(int i = 0; i < IMAGESIZE; i+=2) {
 	for (int y = 0; y < HEIGHT; y++) {
 		for (int x = 0; x < WIDTH; x++) {
 			if ((int) DCMI_Buffer[2 * x + 2 * y * WIDTH] > THRESHOLD) {
 				horizontalLine[x] += (int) DCMI_Buffer[2 * x + 2 * WIDTH * y];
 				verticalLine[y] += (int) DCMI_Buffer[2 * x + 2 * WIDTH * y];
 				pixel++;
-				//xprintf("X: %d, Y: %d\n",(int)DCMI_Buffer[2*x + WIDTH*y], (int)DCMI_Buffer[2*x + WIDTH*y]);
-				//xprintf("X Sum-up: %d, Y Sum-up: %d\n", horizontalLine[x], verticalLine[y]);
-				//xprintf("x: %d, y: %d\n", x,y);
-				//DCMI_Buffer[2 * x + 2 * y * WIDTH] = 255;
-			} else {
-				//DCMI_Buffer[2 * x + 2 * y * WIDTH] = 0;
 			}
 		}
 	}
 
-	if(pixel<80) {
+	if(pixel<MINPIXELTHRESHOLD) { //Cancel if object is too small
 		target.x=0;
 		target.y=0;
 		return;
 	}
 
-	// Optimize here ------
-	/*long sum1 = 0;
-	long sum2 = 0;
-	//  xprintf("Horizontal Line:\n");
-	for (int x = 0; x < WIDTH; x++) {
-		sum1 += horizontalLine[x];
-		//       xprintf("%d\n",horizontalLine[x]);
-	}
-	int meanWidth = 0;
-	while (sum2 < (int) ((float) sum1 / 2.0)) {
-		sum2 += horizontalLine[meanWidth];
-		meanWidth++;
-	}
-//	xprintf("Horizontal sum 1: %d, sum 2: %d, meanWidth: %d\n", sum1, sum2, meanWidth);
-
-	sum1 = 0;
-	sum2 = 0;
-	// xprintf("Vertical Line:\n");
-	for (int y = 0; y < HEIGHT; y++) {
-		sum1 += verticalLine[y];
-		//     xprintf("%d\n",verticalLine[y]);
-	}
-	int meanHeight = 0;
-	while (sum2 < (int) ((float) sum1 / 2.0)) {
-		sum2 += verticalLine[meanHeight];
-		meanHeight++;
-	}*/
-//	xprintf("Vertical sum 1: %d, sum 2: %d meanHeight: %d\n", sum1, sum2, meanHeight);
-
-    // Optimize here ------
+    // Find the position in the arrays where the sumed up values
+	// are Q1, HALF and Q3 of the overall sum. HALF is exactly
+	// the center of gravity of the picture, the span between
+	// Q1 and Q3 is a good indicatior for the angle of the obj.
     int counter = 0;
     int sum1 = 0;
     int sum2 = 0;
@@ -209,7 +176,7 @@ void Camera::DetectSatellite() {
         }
     }
     spanY = third_quarter - first_quarter;
-    // -----------------------
+    // ----------------------------------
 
     bool fireAngle = spanX>2*spanY;
 	target.y = targetX;
@@ -218,7 +185,7 @@ void Camera::DetectSatellite() {
 	cameraFireTopic.publish(fireAngle);
 	xprintf("Target: x:%d, y:%d\n", target.x, target.y);
 	xprintf("Fire: %d\n", fireAngle);
-	// -----------------------*/
+	// ---------------------------------
 }
 
 void Camera::ProcessData() {
@@ -230,11 +197,10 @@ void Camera::run() {
 	while (1) {
 		if (processData) {
 
+			processData = false; // Wait till the next frame (interrup) fires processing
+			DetectSatellite(); // Perform detection algorithm
 
-			processData = false;
-			DetectSatellite();
-
-			if (sendPic) {
+			if (sendPic) { // If picture was requested, send
 				tm.turnOff();
 				char tmpVal[4];
 				tmUart.write("CAMERA", 6);
@@ -248,11 +214,11 @@ void Camera::run() {
 				sendPic = false;
 			}
 
-			if (active) { // Continue Captureing/Processing if still active
+			if (active) { // Continue captureing/processing if cam is still active
 				Capture();
 			}
 
-			suspendCallerUntil(NOW()+200*MILLISECONDS);
+			suspendCallerUntil(NOW()+200*MILLISECONDS); // Could run even faster but 200ms is suficient for mission mode
 		}
 	}
 

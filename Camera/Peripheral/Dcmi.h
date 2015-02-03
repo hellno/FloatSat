@@ -2,7 +2,7 @@
  * Dcmi.h
  *
  *  Created on: 12.01.2015
- *      Author: Andy
+ *      Author: Andreas Schartel
  */
 
 #ifndef PERIPHERAL_DCMI_H_

@@ -2,7 +2,7 @@
  * Satellite.cpp
  *
  *  Created on: 11.01.2015
- *      Author: holger
+ *      Author: holger, Andreas Schartel
  */
 
 #include "Satellite.h"
@@ -41,10 +41,6 @@ Satellite::Satellite(const char* name, uint64_t periode) : Thread(name,1000),
 
 	this->anglePID = AnglePID();
 	this->rotPID = RotPID();
-
-	//anglePID.setPeriod(0.01);/// 1000);
-	//rotPID.setPeriod(0.01);// / 1000);
-	//xprintf("PERIOD FOR CONTROLLE %d\n", periode / 1000);
 }
 
 void Satellite::init(void){
@@ -146,19 +142,6 @@ void Satellite::sendPicture(void){
 		camera.sendPicture();
 	}
 }
-
-/*void Satellite::camDetect(void){
-	if(mode == MISION){
-		camera.DetectSatellite();
-	}
-}
-
-void Satellite::capturePicture(void){
-	if(mode == MISION){
-		camera.Capture();
-	}
-}*/
-
 
 void Satellite::switchMode(void){
 	switch(mode){

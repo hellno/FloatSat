@@ -2,7 +2,7 @@
  * Satellite.h
  *
  *  Created on: 11.01.2015
- *      Author: holger
+ *      Author: holger, Andreas Schartel
  */
 
 #ifndef SKYNET_SATELLITE_H_

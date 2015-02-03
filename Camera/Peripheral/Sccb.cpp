@@ -2,7 +2,7 @@
  * Sccb.cpp
  *
  *  Created on: 12.01.2015
- *      Author: Andy
+ *      Author: Andreas Schartel
  */
 
 #include "../Peripheral/Sccb.h"
