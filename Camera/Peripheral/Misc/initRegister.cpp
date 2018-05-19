@@ -2,7 +2,7 @@
  * initRegister.cpp
  *
  *  Created on: 28.01.2015
- *      Author: holger
+ *      Author: Andreas Schartel
  */
 
 #include "rodos.h"

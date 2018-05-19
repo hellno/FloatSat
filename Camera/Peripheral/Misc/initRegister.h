@@ -2,7 +2,7 @@
  * initRegister.h
  *
  *  Created on: 01.12.2014
- *      Author: Andy
+ *      Author: Andreas Schartel
  */
 
 #ifndef INITREGISTER_H_

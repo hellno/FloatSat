@@ -2,7 +2,7 @@
  * Dcmi.cpp
  *
  *  Created on: 12.01.2015
- *      Author: Andy
+ *      Author: Andreas Schartel
  */
 
 #include "Dcmi.h"

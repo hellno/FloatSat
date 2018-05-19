@@ -63,15 +63,19 @@ LightSensor::LightSensor(const char* name, HAL_I2C *i2c,  uint64_t periode) : Th
 
 	active = true;
 }
+
 void LightSensor::turnOn(void){
 	active = true;
 }
+
 void LightSensor::turnOff(void){
 	active = false;
 }
+
 bool LightSensor::isOn(void){
 	return active;
 }
+
 void LightSensor::init(){
 //	xprintf("start lightsensor init\n");
 	int32_t error = i2c->init();
@@ -95,6 +99,7 @@ void LightSensor::init(){
 	xprintf("i2c light integr. retVal: %d \n", retVal);
 
 }
+
 void LightSensor::run(){
 	int32_t err[2] = { 0 };
 
@@ -128,21 +133,21 @@ void LightSensor::run(){
 				lux =  calculateLux(channel0_combined, channel1_combined);
 				lightTopic.publish(lux);
 
-				if (DBGOUT) xprintf("lux: %d\n", lux);
+//				if (DEBUG) xprintf("lux: %d\n", lux);
 
-			}else{
-				if (DBGOUT) {
-	//				xprintf("err@reading i2c sun registers\n");
-	//				xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
+			}/*else{
+				init();
+				if (DEBUG) {
+					xprintf("err@reading i2c sun registers\n");
+					xprintf("reg0: %d, reg1: %d\n", err[0], err[1]);
 				}
-			}
+			}*/
 
 		}
 	}
 }
 
-uint32_t LightSensor::calculateLux(uint16_t ch0, uint16_t ch1)
-{
+uint32_t LightSensor::calculateLux(uint16_t ch0, uint16_t ch1){
 	unsigned long chScale;
 	unsigned long channel1;
 	unsigned long channel0;

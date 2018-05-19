@@ -6,9 +6,12 @@
  */
 
 #include "RotPID.h"
+#include "../Hardware/MotorThread.h"
 
 Fifo<Vector3D, 5> rotFifo;
 Subscriber rotSub(gyroTopic, rotFifo, "velocitySubForRotPID");
+
+extern MotorThread mt;
 
 RotPID::RotPID(void){
 	P = 0.0;
@@ -22,9 +25,9 @@ RotPID::RotPID(void){
 	*/
 
 	/* 20 MS */
-	P_factor = -125.3574;
-	I_factor = -1.04339;
-	D_factor = 62.3248;
+	P_factor = -4.86;
+	I_factor = -81.70;
+	D_factor = 0.33791;
 
 
 	integral = 0.0;
@@ -39,9 +42,9 @@ void RotPID::run(void){
 	float error = tempVal.z - desRot;
 
 	if (fabs(error) > PID_ERROR_THRESHOLD) {
-		integral += error;
+		integral += error * period;
 	}
-	derivative = (error - prevError);
+	derivative = (error - prevError) / period;
 
 	P = P_factor * error;
 	I = I_factor * integral;
@@ -50,6 +53,7 @@ void RotPID::run(void){
 	output = P + I + D;
 
 	prevError = error;
+	mt.setMotorSpeed(output);
 
 	if(DEBUG) xprintf("ROT_PID: %.2f (e:%.2f,desRot:%.2f,curRot:%d)\n", output, error, desRot, tempVal.z);
 }
@@ -87,10 +91,18 @@ float RotPID::getD(void){
 	return D;
 }
 
-uint16_t RotPID::currentOutput(void){
+int16_t RotPID::currentOutput(void){
 	return (uint16_t) output;
 }
 
 void RotPID::setPeriod(float seconds){
 	this->period = seconds;
+}
+
+float RotPID::getOutput(void){
+	return output;
+}
+
+float RotPID::getError(void){
+	return prevError;
 }

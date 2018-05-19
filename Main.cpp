@@ -13,27 +13,39 @@
 #include "Hardware/LightSensor.h"
 #include "Hardware/IMU.h"
 #include "Hardware/MotorThread.h"
+#include "Hardware/SolarPanel.h"
 #include "TC.h"
 #include "Satellite.h"
 #include "TM.h"
 #include "Camera/Camera.h"
+#include "Hardware/SolarPanel.h"
+#include "SunFinding.h"
+
+#include "tst/TestClass.h"
 
 static Application module01("FloatSat", 2001);
 
 HAL_UART uart_usb(UART_IDX3);
-HAL_UART bt_usb(UART_IDX2);
-HAL_I2C light_i2c(I2C_IDX1);
+HAL_UART uart_bt(UART_IDX2);
+HAL_I2C light_i2c(I2C_IDX3);
 HAL_I2C imuI2C(I2C_IDX2);
+HAL_ADC adc(ADC_IDX1);
 
-CommHandler ch("CommHandler", &bt_usb, 20 * MILLISECONDS);
+CommHandler ch("CommHandler", &uart_bt, 20 * MILLISECONDS);
+
+Camera camera("Camera", ch.getUart());
 
 IMU imu("IMU", 100 * MILLISECONDS);
 LightSensor ls("LightSensor", &light_i2c, STD_PERIOD);
 MotorThread mt("motorThread");
+SolarPanel solarPanel("SolarPanel", STD_PERIOD, &adc);
 
-Camera camera("Camera", ch.getUart());
+SunFinding sf("SunFinding");
+
 
 TM tm("tmHandler", 20 * MILLISECONDS);
 TC tc("tcHandler", &imu, &ls, &mt, &camera);
 
-Satellite skyNet("SkyNet", 50 * MILLISECONDS);
+Satellite skyNet("SkyNet", 10 * MILLISECONDS);
+
+//TestClass tst("Test");

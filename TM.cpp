@@ -7,7 +7,7 @@
 
 #include "TM.h"
 
-#define FIFO_SIZE 3
+#define FIFO_SIZE 2
 
 Fifo<uint32_t, FIFO_SIZE> lightFifo;
 Fifo<Vector3D, FIFO_SIZE> gyroFifo;
@@ -17,7 +17,12 @@ Fifo<float, FIFO_SIZE> tempFifo;
 Fifo<float, FIFO_SIZE> orientationFifo;
 Fifo<float, FIFO_SIZE> yawAngleFifo;
 Fifo<RawVector2D, FIFO_SIZE> cameraTargetFifo;
+Fifo<float, FIFO_SIZE> spVolFifo;
+Fifo<int16_t, FIFO_SIZE> motorSpeedFifo;
+Fifo<float, FIFO_SIZE> pidErrorFifo;
+Fifo<float, FIFO_SIZE> pidOutputFifo;
 
+Subscriber motorSpeedSubscriber(motorSpeedTopic, motorSpeedFifo, "motorSpeedSub");
 Subscriber lightSubscriber(lightTopic, lightFifo, "lightSub");
 Subscriber gyroSubscriber(gyroTopic, gyroFifo, "gyroSub");
 Subscriber accSubscriber(accTopic, accFifo, "accSub");
@@ -26,6 +31,9 @@ Subscriber tempSubscriber(tempTopic, tempFifo, "tempSub");
 Subscriber orientationSubscriber(orientationTopic, orientationFifo, "orientationSub");
 Subscriber yawAngleSubscriber(yawAngTopic, yawAngleFifo, "yawAngleSub");
 Subscriber cameraTargetSubscriber(cameraTargetTopic, cameraTargetFifo, "cameraTargetSub");
+Subscriber solarpanelVoltageSubscriber(solarpanelVoltageTopic, spVolFifo, "batteryVoltageSub");
+Subscriber pidErrorSubscriber(pidErrorTopic, pidErrorFifo, "pidErrorSub");
+Subscriber pidOutputSubscriber(pidOutputTopic, pidOutputFifo, "pidOutputSub");
 
 char buf[BUFFER_SIZE];
 
@@ -73,7 +81,6 @@ void copyStringToMsg(char* str, CommStruct *cs){
 		*(tmpVal + i) = *(str+i);
 	}
 
-	//OLD strncpy(cs->msg, tmpVal, strlen(cs->msg));
 	strncpy(cs->msg, tmpVal, len);
 }
 
@@ -105,40 +112,41 @@ void TM::sendHousekeepingData(void){
 	Vector3D tempVector;
 	RawVector2D tempVector2D;
 	uint32_t tempInt;
+	int16_t temp16Int;
 	float tempFloat;
 
-	/*
 	//LGHTSN
-	lightFifo.get(tempInt);
-	sprintf(cs.param, "%.6s", "LGHTSN");
-	sprintf(cs.msg, "%.2f", tempInt);
-	tmTopic.publish(cs);
+	if(lightFifo.get(tempInt)){
+		sprintf(cs.param, "%.6s", "LGHTSN");
+		sprintf(cs.msg, "%d", tempInt);
+		tmTopic.publish(cs);
+	}
 
 	//MAGDAT
-	magFifo.get(tempRawVector);
-	sprintf(cs.param, "%.6s", "MAGDAT");
-	raw_vector_to_msg(&cs, &tempVector);
-	tmTopic.publish(cs);
+	if(magFifo.get(tempRawVector)){
+		sprintf(cs.param, "%.6s", "MAGDAT");
+		raw_vector_to_msg(&cs, &tempRawVector);
+		tmTopic.publish(cs);
+	}
 
-	//ACCDAT
-	accFifo.get(tempRawVector);
-	sprintf(cs.param, "%.6s", "ACCDAT");
-	raw_vector_to_string(cs.msg, &tempVector);
-	tmTopic.publish(cs);
+	//SPLVOL
+	if(spVolFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "SPLVOL");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
 
+	//TARGET
+	if(cameraTargetFifo.get(tempVector2D)){
+		sprintf(cs.param, "%.6s", "TARGET");
+		raw_vector_to_string(cs.msg, &tempVector2D);
+		tmTopic.publish(cs);
+	}
 
 	//GYRDAT
 	if(gyroFifo.get(tempVector)){
 		sprintf(cs.param, "%.6s", "GYRDAT");
 		vector_to_string(cs.msg, &tempVector);
-		tmTopic.publish(cs);
-	}
-	*/
-
-	//YAWANG
-	if(yawAngleFifo.get(tempFloat)){
-		sprintf(cs.param, "%.6s", "YAWANG");
-		sprintf(cs.msg, "%.2f", tempFloat);
 		tmTopic.publish(cs);
 	}
 
@@ -149,10 +157,37 @@ void TM::sendHousekeepingData(void){
 		tmTopic.publish(cs);
 	}
 
-	//TARGET
-	if(cameraTargetFifo.get(tempVector2D)){
-		sprintf(cs.param, "%.6s", "TARGET");
-		raw_vector_to_string(cs.msg, &tempVector2D);
+	//ACCDAT
+	if(accFifo.get(tempRawVector)){
+		sprintf(cs.param, "%.6s", "ACCDAT");
+		raw_vector_to_string(cs.msg, &tempRawVector);
+		tmTopic.publish(cs);
+	}
+
+	//MOTSPD
+	if(motorSpeedFifo.get(temp16Int)){
+		sprintf(cs.param, "%.6s", "MOTSPD");
+		sprintf(cs.msg, "%d", temp16Int);
+		tmTopic.publish(cs);
+	}
+
+	//YAWANG
+	if(yawAngleFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "YAWANG");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
+
+	//PIDERR
+	if(pidErrorFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "PIDERR");
+		sprintf(cs.msg, "%.2f", tempFloat);
+		tmTopic.publish(cs);
+	}
+	//PIDOUT
+	if(pidOutputFifo.get(tempFloat)){
+		sprintf(cs.param, "%.6s", "PIDOUT");
+		sprintf(cs.msg, "%.2f", tempFloat);
 		tmTopic.publish(cs);
 	}
 }

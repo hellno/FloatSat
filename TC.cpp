@@ -45,11 +45,11 @@ void TC::run(){
 
 void TC::handlePacket(CommStruct *cs){
 	if(DEBUG){
-		xprintf("TC: param:%s,msg:%s(dbg=%d)\n", cs->param, cs->msg, DEBUG);
-		xprintf("len: p%d,m%d\n", strlen(cs->param), strlen(cs->msg));
+		xprintf("TC: param:%s,msg:%s(atoi=%d, dbg=%d)\n", cs->param, cs->msg, atoi(cs->msg), DEBUG);
+		//xprintf("len: p%d,m%d\n", strlen(cs->param), strlen(cs->msg));
 	}
 
-	if (paramIsEqualTo(cs, "MOTSPD")){ // [0,100] set % of motorspeed
+	if (paramIsEqualTo(cs, "MOTSPD")){ // [0,1000] set motorspeed
 			mt->setMotorSpeed(atoi(cs->msg));
 	} else if (paramIsEqualTo(cs, "ECHOHO")) { // echo test
 		xprintf("ECHOHO(DBG)\n");

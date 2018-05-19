@@ -18,6 +18,12 @@
 
 #define PID_ERROR_THRESHOLD 5
 
+#define SOLPAN_CHANNEL ADC_CH_000 		//= PA0/PA0/PA0
+
+#define SOLAR_PANEL_RESISTOR 1.0f
+
+#define MOTOR_SPEED_LIMIT 400
+
 extern bool DEBUG; //one-time status messages
 extern bool DBGOUT; //periodic, fast outputs
 
@@ -31,6 +37,7 @@ struct RawVector2D{
 	int16_t x;
 	int16_t y;
 };
+
 struct RawVector3D{
 	int16_t x;
 	int16_t y;
@@ -81,7 +88,7 @@ enum SkyNetTopicID{
 	UserButtonTopicID = 34567,
 };
 //Hardware
-extern Topic<uint16_t> motorSpeedTopic;
+extern Topic<int16_t> motorSpeedTopic;
 
 //TM
 extern Topic<CommStruct> tmTopic;
@@ -94,7 +101,12 @@ extern Topic<float> tempTopic;
 extern Topic<float> orientationTopic;
 extern Topic<float> yawAngTopic;
 extern Topic<RawVector2D> cameraTargetTopic;
+extern Topic<float> solarpanelVoltageTopic;
+//extern Topic<float> solarpanelChargeTopic;
+extern Topic<float> pidErrorTopic;
+extern Topic<float> pidOutputTopic;
 extern Topic<bool> cameraFireTopic;
+
 
 //TC
 extern Topic<CommStruct> tcTopic;

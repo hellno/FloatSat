@@ -2,7 +2,7 @@
  * Satellite.h
  *
  *  Created on: 11.01.2015
- *      Author: holger
+ *      Author: holger, Andreas Schartel
  */
 
 #ifndef SKYNET_SATELLITE_H_
@@ -25,8 +25,7 @@ private:
 
 	AnglePID anglePID;
 	RotPID rotPID;
-
-	uint16_t tempValue;
+	int16_t tempValue;
 public:
 	Satellite(const char* name, uint64_t periode);
 	void init(void);

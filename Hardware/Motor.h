@@ -25,12 +25,14 @@
 class Motor {
 private:
 	void dbgStatus();
+	int16_t duty_cycle;
 public:
 	void init();
 	void startMotor();
 	void stopMotor();
-	void initTimer();
-	void setSpeed(uint16_t percentage);
+	void setSpeed(int16_t speed);
+	int16_t getSpeed(void);
+	void handleDirection(int16_t duty_cycle);
 };
 
 #endif /* MOTOR_H_ */

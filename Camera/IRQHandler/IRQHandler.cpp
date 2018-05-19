@@ -2,7 +2,7 @@
  * irqhandler.cpp
  *
  *  Created on: 12.01.2015
- *      Author: Andy
+ *      Author: Andreas Schartel
  */
 
 #include "rodos.h"
@@ -33,8 +33,6 @@ extern "C" void DMA2_Stream1_IRQHandler(void) {
 	if (DMA_GetITStatus(DMA2_Stream1, DMA_IT_TCIF1) == SET) {
 		//xprintf("Frame Complete, detecting Target...\n");
 		camera.ProcessData();
-		//DMA_ClearFlag(DMA1_Stream6, DMA_IT_TCIF6);
-		//sendPic = 1;	//when frame_flag =1,all the data will be send through serial port in main function while loop
 		DMA_ClearFlag(DMA2_Stream1, DMA_IT_TCIF1);
 	}
 	if (DMA_GetITStatus(DMA2_Stream1, DMA_IT_TEIF1) == SET) {

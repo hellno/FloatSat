@@ -2,7 +2,7 @@
  * Camera.h
  *
  *  Created on: 12.01.2015
- *      Author: Andy
+ *      Author: Andreas Schartel
  */
 
 #ifndef CAMERA_H_
@@ -33,7 +33,8 @@
 //#define FRAMERATE					DCMI_CaptureRate_1of4_Frame
 #define DCMI_DR_ADDRESS      		0x50050028
 #define IMAGESIZE					(HEIGHT*WIDTH*2)
-#define THRESHOLD					200
+#define THRESHOLD					165
+#define MINPIXELTHRESHOLD			80
 
 #define Q1							0.25f
 #define HALF						0.5f
